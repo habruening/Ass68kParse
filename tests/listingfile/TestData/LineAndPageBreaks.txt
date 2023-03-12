@@ -1,0 +1,9 @@
+Line  1, LF
+Line  2, CRLine  3, CR+LF
+Line  4, CR+CRLine  6, LF+LF
+
+Line  8, LF+CR
+Line  9, FFLine  9, FF+LF
+Line 10, FF+CRLine 11, FF+CR+LF
+Line 12, FF+LF+CR
+Line 13

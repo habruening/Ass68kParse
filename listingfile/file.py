@@ -26,10 +26,12 @@ def find_first_of(text, values):
         best_match = (found_at, value)
   return best_match
 
-def split_at(file, separators):
+def split_at(file, separators, warn_if_separator = []):
   position = 0
   while (position < len(file)):
     if page_break_at := find_first_of(file[position:], separators):
+      if page_break_at[1] in warn_if_separator:
+        log.warning("There are incorrect newline encodings. Line numbers will be incorrect.")
       yield (position, position + page_break_at[0])
       position = position + page_break_at[0] + len(page_break_at[1])
     else:
@@ -37,10 +39,10 @@ def split_at(file, separators):
       position = len(file)
 
 def split_pages(file):
-  yield from split_at(file, ["\f\r\n", "\f\n\r", "\f\n", "\f\r", "\f"])
+  yield from split_at(file, ["\f\r\n", "\f\n\r", "\f\n", "\f\r", "\f"], ["\f"])
 
 def split_lines(file):
-  yield from split_at(file, ["\r\n", "\n\r", "\n", "\r"])
+  yield from split_at(file, ["\r\n", "\n\r", "\n", "\r"], ["\n\r"])
 
 def create_pages_and_lines(file):
   result = []

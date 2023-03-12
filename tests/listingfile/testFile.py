@@ -5,6 +5,14 @@ import listingfile.file
 
 import itertools
 
+class TestLogger():
+  def __init__(self):
+    self.warnings = []
+  def warning(self, message):
+    self.warnings.append(message)
+
+listingfile.file.log = TestLogger()
+
 class TestClass_Line_Methods(unittest.TestCase):
   def test_all(self):
     line = listingfile.file.Line(17, (4, 8), "0123456789" )
@@ -96,6 +104,14 @@ class TestFunction_split_at(unittest.TestCase):
     self.assertFalse(list(elements))
     elements = listingfile.file.split_at("", ["", "x"])
     self.assertFalse(list(elements))
+
+  def test_warnings(self):
+    listingfile.file.log.warnings = []
+    found_at = list(listingfile.file.split_at("abcdefg", ["x", "b", "bc"]))
+    self.assertFalse(listingfile.file.log.warnings)
+    found_at = list(listingfile.file.split_at("abcdefg", ["x", "b", "bc"], ["bc"]))
+    self.assertEqual(len(listingfile.file.log.warnings), 1)
+    self.assertIn("newline", listingfile.file.log.warnings[0])
 
 class TestFunction_split_pages(unittest.TestCase):
 
@@ -276,11 +292,15 @@ class TestFunction_create_pages_and_lines(unittest.TestCase):
                        example.replace("\n","").replace("\r", "").replace("\f", ""))
       
   def test_line_numbering(self):
-    with open("tests/listingfile/TestData/LineAndPageBreaks.txt", "r") as f:
-      x = listingfile.file.PrintedFile(f.read())
+    with open("tests/listingfile/TestData/LineAndPageBreaks.txt", "r") as input, \
+         open("tests/listingfile/TestData/LineAndPageBreaks_expected.txt", "r") as expected:
+      x = listingfile.file.PrintedFile(input.read())
+      expected = iter(expected.read().splitlines())
       for p in x.pages:
         for l in p.lines:
-          print("{}: {}".format(l.line_no, l.text()))
+          self.assertEqual(next(expected), "{}: {}".format(l.line_no+1, l.text()))
+      with self.assertRaises(StopIteration):
+        next(expected)
 
   #def test_with_example_file(self):
   #  with open("tests/listingfile/TestData/JCOBITCP_JCOBTCC.LIS", "r") as f:
