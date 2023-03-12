@@ -302,8 +302,10 @@ class TestFunction_create_pages_and_lines(unittest.TestCase):
       with self.assertRaises(StopIteration):
         next(expected)
 
-  #def test_with_example_file(self):
-  #  with open("tests/listingfile/TestData/JCOBITCP_JCOBTCC.LIS", "r") as f:
-  #    x = listingfile.file.PrintedFile(f.read())
-  #    print(len(x.pages))
-  #    print(x.pages[-1].lines[-1].line_no)
+  def test_with_example_file(self):
+    with open("tests/listingfile/TestData/JCOBITCP_JCOBTCC.LIS", "r") as input:
+      pf = listingfile.file.PrintedFile(input.read())
+      for page_no in range(0, 6):
+        expected_file_name = "tests/listingfile/TestData/JCOBITCP_JCOBTCC_expected_page_{}.LIS".format(page_no+1)
+        with open(expected_file_name, "r") as expected:
+          self.assertEqual("\n".join([line.text() for line in pf.pages[page_no].lines]), expected.read())
