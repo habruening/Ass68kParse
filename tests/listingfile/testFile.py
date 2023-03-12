@@ -15,53 +15,53 @@ class TestFunction_find_first_of(unittest.TestCase):
 
   def test_normal_operation(self):
     found_at = listingfile.file.find_first_of("abcdefg", ["a"])
-    self.assertEqual(found_at, (0,1))
+    self.assertEqual(found_at, (0,"a"))
     found_at = listingfile.file.find_first_of("abcdefg", ["b"])
-    self.assertEqual(found_at, (1,1))
+    self.assertEqual(found_at, (1,"b"))
     found_at = listingfile.file.find_first_of("abcdefg", ["g"])
-    self.assertEqual(found_at, (6,1))
+    self.assertEqual(found_at, (6,"g"))
     found_at = listingfile.file.find_first_of("abcdefg", ["ab"])
-    self.assertEqual(found_at, (0,2))
+    self.assertEqual(found_at, (0,"ab"))
     found_at = listingfile.file.find_first_of("abcdefg", ["bc"])
-    self.assertEqual(found_at, (1,2))
+    self.assertEqual(found_at, (1,"bc"))
     found_at = listingfile.file.find_first_of("abcdefg", ["fg"])
-    self.assertEqual(found_at, (5,2))
+    self.assertEqual(found_at, (5,"fg"))
     found_at = listingfile.file.find_first_of("abcdefg", ["ab", "a"])
-    self.assertEqual(found_at, (0,2))
+    self.assertEqual(found_at, (0,"ab"))
     found_at = listingfile.file.find_first_of("abcdefg", ["bc", "a"])
-    self.assertEqual(found_at, (0,1))
+    self.assertEqual(found_at, (0,"a"))
     found_at = listingfile.file.find_first_of("abcdefg", ["fg", "a"])
-    self.assertEqual(found_at, (0,1))
+    self.assertEqual(found_at, (0,"a"))
     found_at = listingfile.file.find_first_of("abcdefg", ["a", "b"])
-    self.assertEqual(found_at, (0,1))
+    self.assertEqual(found_at, (0,"a"))
     found_at = listingfile.file.find_first_of("abcdefg", ["b", "c"])
-    self.assertEqual(found_at, (1,1))
+    self.assertEqual(found_at, (1,"b"))
     found_at = listingfile.file.find_first_of("abcdefg", ["g", "f"])
-    self.assertEqual(found_at, (5,1))
+    self.assertEqual(found_at, (5,"f"))
     found_at = listingfile.file.find_first_of("abcdefg", ["ab", "c"])
-    self.assertEqual(found_at, (0,2))
+    self.assertEqual(found_at, (0,"ab"))
     found_at = listingfile.file.find_first_of("abcdefg", ["bc", "d"])
-    self.assertEqual(found_at, (1,2))
+    self.assertEqual(found_at, (1,"bc"))
     found_at = listingfile.file.find_first_of("abcdefg", ["fg", "e"])
-    self.assertEqual(found_at, (4,1))
+    self.assertEqual(found_at, (4,"e"))
     found_at = listingfile.file.find_first_of("abcdefg", ["x", "a"])
-    self.assertEqual(found_at, (0,1))
+    self.assertEqual(found_at, (0,"a"))
     found_at = listingfile.file.find_first_of("abcdefg", ["x", "b"])
-    self.assertEqual(found_at, (1,1))
+    self.assertEqual(found_at, (1,"b"))
     found_at = listingfile.file.find_first_of("abcdefg", ["x", "g"])
-    self.assertEqual(found_at, (6,1))
+    self.assertEqual(found_at, (6,"g"))
     found_at = listingfile.file.find_first_of("abcdefg", ["x", "ab"])
-    self.assertEqual(found_at, (0,2))
+    self.assertEqual(found_at, (0,"ab"))
     found_at = listingfile.file.find_first_of("abcdefg", ["x", "bc"])
-    self.assertEqual(found_at, (1,2))
+    self.assertEqual(found_at, (1,"bc"))
     found_at = listingfile.file.find_first_of("abcdefg", ["x", "fg"])
-    self.assertEqual(found_at, (5,2))
+    self.assertEqual(found_at, (5,"fg"))
 
   def test_empty_string(self):
     found_at = listingfile.file.find_first_of("", [])
     self.assertFalse(found_at)
     found_at = listingfile.file.find_first_of("", [""])
-    self.assertEqual(found_at, (0,0))
+    self.assertEqual(found_at, (0,""))
     found_at = listingfile.file.find_first_of("", ["x"])
     self.assertFalse(found_at)
     found_at = listingfile.file.find_first_of("", ["x", "y"])
@@ -71,7 +71,7 @@ class TestFunction_find_first_of(unittest.TestCase):
     found_at = listingfile.file.find_first_of("x", [])
     self.assertFalse(found_at)
     found_at = listingfile.file.find_first_of("x", [""])
-    self.assertEqual(found_at, (0,0))
+    self.assertEqual(found_at, (0,""))
 
 class TestFunction_split_at(unittest.TestCase):
 
@@ -275,5 +275,15 @@ class TestFunction_create_pages_and_lines(unittest.TestCase):
       self.assertEqual("".join(["".join([l.text() for l in p.lines]) for p in pages]),
                        example.replace("\n","").replace("\r", "").replace("\f", ""))
       
-  def test_with_example_file(self):
-    pages = listingfile.file.create_pages_and_lines(open())
+  def test_line_numbering(self):
+    with open("tests/listingfile/TestData/LineAndPageBreaks.txt", "r") as f:
+      x = listingfile.file.PrintedFile(f.read())
+      for p in x.pages:
+        for l in p.lines:
+          print("{}: {}".format(l.line_no, l.text()))
+
+  #def test_with_example_file(self):
+  #  with open("tests/listingfile/TestData/JCOBITCP_JCOBTCC.LIS", "r") as f:
+  #    x = listingfile.file.PrintedFile(f.read())
+  #    print(len(x.pages))
+  #    print(x.pages[-1].lines[-1].line_no)

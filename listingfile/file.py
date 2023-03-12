@@ -22,8 +22,8 @@ def find_first_of(text, values):
   for value in values:
     if 0 <= (found_at := text.find(value)):
       if(not best_match or found_at < best_match[0] 
-                        or (found_at == best_match[0] and best_match[1] < len(value))):
-        best_match = (found_at, len(value))
+                        or (found_at == best_match[0] and len(best_match[1]) < len(value))):
+        best_match = (found_at, value)
   return best_match
 
 def split_at(file, separators):
@@ -31,7 +31,7 @@ def split_at(file, separators):
   while (position < len(file)):
     if page_break_at := find_first_of(file[position:], separators):
       yield (position, position + page_break_at[0])
-      position = position + page_break_at[0] + page_break_at[1]
+      position = position + page_break_at[0] + len(page_break_at[1])
     else:
       yield (position, len(file))
       position = len(file)
