@@ -13,10 +13,6 @@ class Line:
   def text(self):
     return self.file[self.from_to[0]:self.from_to[1]]
 
-class Page:
-  def __init__(self):
-    self.lines = []
-
 def find_first_of(text, values): 
   best_match = False
   for value in values:
@@ -48,15 +44,11 @@ def create_pages_and_lines(file):
   result = []
   line_no = 0
   for page in split_pages(file):
-    new_page = Page()
+    new_page = []
     for line in split_lines(file[page[0]:page[1]]):
       line = Line(line_no, (page[0]+line[0], page[0]+line[1]), file)
       line_no = line_no + 1
-      new_page.lines.append(line)
+      new_page.append(line)
     result.append(new_page)
   return result
-
-class PrintedFile:
-  def __init__(self, file):
-    self.pages = create_pages_and_lines(file)
     

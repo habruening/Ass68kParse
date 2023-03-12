@@ -269,14 +269,14 @@ class TestFunction_split_lines(unittest.TestCase):
 class TestFunction_create_pages_and_lines(unittest.TestCase):
   def test_constructor(self):
     pages = listingfile.file.create_pages_and_lines("\f\n1\n2\f3\f4\f5\f\f6")
-    self.assertFalse(pages[0].lines)
-    self.assertEqual(pages[1].lines[0].text(), "1")
-    self.assertEqual(pages[1].lines[1].text(), "2")
-    self.assertEqual(pages[2].lines[0].text(), "3")
-    self.assertEqual(pages[3].lines[0].text(), "4")
-    self.assertEqual(pages[4].lines[0].text(), "5")
-    self.assertFalse(pages[5].lines)
-    self.assertEqual(pages[6].lines[0].text(), "6")
+    self.assertFalse(pages[0])
+    self.assertEqual(pages[1][0].text(), "1")
+    self.assertEqual(pages[1][1].text(), "2")
+    self.assertEqual(pages[2][0].text(), "3")
+    self.assertEqual(pages[3][0].text(), "4")
+    self.assertEqual(pages[4][0].text(), "5")
+    self.assertFalse(pages[5])
+    self.assertEqual(pages[6][0].text(), "6")
 
   def test_all(self):
     c = ["\f", "\n", "\r", "1", "a", " "]
@@ -284,28 +284,30 @@ class TestFunction_create_pages_and_lines(unittest.TestCase):
       pages = listingfile.file.create_pages_and_lines(example)
       line_no = 0
       for page in pages:
-        for line in page.lines:
+        for line in page:
           self.assertEqual(line.line_no, line_no)
           line_no = line_no + 1
           self.assertEqual(example[line.from_to[0]:line.from_to[1]], line.text())
-      self.assertEqual("".join(["".join([l.text() for l in p.lines]) for p in pages]),
+      self.assertEqual("".join(["".join([l.text() for l in p]) for p in pages]),
                        example.replace("\n","").replace("\r", "").replace("\f", ""))
       
   def test_line_numbering(self):
     with open("tests/listingfile/TestData/LineAndPageBreaks.txt", "r") as input, \
          open("tests/listingfile/TestData/LineAndPageBreaks_expected.txt", "r") as expected:
-      x = listingfile.file.PrintedFile(input.read())
+      pages = listingfile.file.create_pages_and_lines(input.read())
       expected = iter(expected.read().splitlines())
-      for p in x.pages:
-        for l in p.lines:
+      for p in pages:
+        for l in p:
           self.assertEqual(next(expected), "{}: {}".format(l.line_no+1, l.text()))
       with self.assertRaises(StopIteration):
         next(expected)
 
-  def test_with_example_file(self):
+  def test_with_real_file(self):
     with open("tests/listingfile/TestData/JCOBITCP_JCOBTCC.LIS", "r") as input:
-      pf = listingfile.file.PrintedFile(input.read())
+      listingfile.file.log.warnings = []
+      pages = listingfile.file.create_pages_and_lines(input.read())
+      self.assertFalse(listingfile.file.log.warnings)
       for page_no in range(0, 6):
         expected_file_name = "tests/listingfile/TestData/JCOBITCP_JCOBTCC_expected_page_{}.LIS".format(page_no+1)
         with open(expected_file_name, "r") as expected:
-          self.assertEqual("\n".join([line.text() for line in pf.pages[page_no].lines]), expected.read())
+          self.assertEqual("\n".join([line.text() for line in pages[page_no]]), expected.read())
