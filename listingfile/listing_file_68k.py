@@ -3,7 +3,7 @@ from . import printed_file
 import logging
 log = logging.getLogger(__name__)
 
-def check_page_header(page_no, page):
+def check_page_header(page_no, page, logger = log):
   """ A correct page header looks this way:
 JCOBTCC_BIT_Test_Controller                                     28-Apr-2017 14:57:43    XD Ada V1.2A-33                     Page   2
 01                                                              28-Apr-2017 14:54:46    JCOBITCP_JCOBTCC.ADA;1                   (1)
@@ -26,3 +26,19 @@ JCOBTCC_BIT_Test_Controller                                     28-Apr-2017 14:5
     log.warning("Page {} has an incorrect page header line 2.".format(page_no))
     return False
   return True
+
+def reconstruct_lost_pages(page_no, page):
+  # The purpose of this function is to reconstruct pages in case the form feed symbols are missing. This is likely
+  # to happen when the dos2unix command is used or when the file is changed in a text editor.
+  reconstructed_pages = []
+  page_start = 0
+  class NoLogging:
+    def warning(self):
+      pass
+  for line in range(1,len(page)+1):
+    if (line == len(page)) or check_page_header(page_no, page[line:], NoLogging()):
+      reconstructed_pages.append(page[page_start:line])
+      if 0 < page_start:
+        log.warning("Reconstructing pages after page {}, which were not introduced by the form feed symbol.".format(page_no))
+      page_start = line
+  return reconstructed_pages  

@@ -3,13 +3,13 @@
 import unittest
 import listingfile.listing_file_68k
 
-class TestLogger():
+class LoggerStub():
   def __init__(self):
     self.warnings = []
   def warning(self, message):
     self.warnings.append(message)
 
-listingfile.listing_file_68k.log = TestLogger()
+listingfile.listing_file_68k.log = LoggerStub()
 
 class LineStub:
   def __init__(self, text):
@@ -62,3 +62,49 @@ class TestFunction_check_page_header(unittest.TestCase):
       self.assertFalse(header_correct)
       self.assertIn("too many lines", listingfile.listing_file_68k.log.warnings[0])
          
+
+def check_page_header_stub(page_no, page, logger):
+  if len(page)<2:
+    return False
+  if (page[0].text() != "a") or (page[1].text() != "b"):
+    return False
+  return True
+  
+def test_reconstruct_lost_pages_with(text):
+  pages = listingfile.listing_file_68k.reconstruct_lost_pages(17, [LineStub(l) for l in text])
+  return ["".join([l.text() for l in p]) for p in pages]
+
+class TestFunction_reconstruct_lost_pages(unittest.TestCase):
+
+  def test_examples(self):
+    original_check_page_header = listingfile.listing_file_68k.check_page_header
+    listingfile.listing_file_68k.check_page_header = check_page_header_stub
+    self.assertEqual(test_reconstruct_lost_pages_with(""), [])
+    self.assertEqual(test_reconstruct_lost_pages_with("x"), ["x"])
+    self.assertEqual(test_reconstruct_lost_pages_with("xab"), ["x", "ab"])
+    self.assertEqual(test_reconstruct_lost_pages_with("a"), ["a"])
+    self.assertEqual(test_reconstruct_lost_pages_with("ab"), ["ab"])
+    self.assertEqual(test_reconstruct_lost_pages_with("aba"), ["aba"])
+    self.assertEqual(test_reconstruct_lost_pages_with("abab"), ["ab", "ab"])
+    self.assertEqual(test_reconstruct_lost_pages_with("abxab"), ["abx", "ab"])
+    self.assertEqual(test_reconstruct_lost_pages_with("abxabx"), ["abx", "abx"])
+    self.assertEqual(test_reconstruct_lost_pages_with("abxababx"), ["abx", "ab", "abx"])
+    listingfile.listing_file_68k.check_page_header = original_check_page_header
+
+  def test_warning_messages(self):
+    listingfile.listing_file_68k.log.warnings = []
+    original_check_page_header = listingfile.listing_file_68k.check_page_header
+    listingfile.listing_file_68k.check_page_header = check_page_header_stub
+    test_reconstruct_lost_pages_with("")
+    self.assertFalse(listingfile.listing_file_68k.log.warnings)
+    test_reconstruct_lost_pages_with("abxxxx")
+    self.assertFalse(listingfile.listing_file_68k.log.warnings)
+    # The following one is no error, because this is already checked by listingfile.listing_file_68k.check_page_header
+    test_reconstruct_lost_pages_with("x")
+    self.assertFalse(listingfile.listing_file_68k.log.warnings)
+    test_reconstruct_lost_pages_with("xab")
+    self.assertIn("Reconstructing page", listingfile.listing_file_68k.log.warnings[0])
+    listingfile.listing_file_68k.log.warnings = []
+    test_reconstruct_lost_pages_with("abxab")
+    self.assertIn("Reconstructing page", listingfile.listing_file_68k.log.warnings[0])
+    listingfile.listing_file_68k.check_page_header = original_check_page_header

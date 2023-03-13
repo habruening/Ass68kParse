@@ -5,13 +5,13 @@ import listingfile.printed_file
 
 import itertools
 
-class TestLogger():
+class LoggerStub():
   def __init__(self):
     self.warnings = []
   def warning(self, message):
     self.warnings.append(message)
 
-listingfile.printed_file.log = TestLogger()
+listingfile.printed_file.log = LoggerStub()
 
 class TestClass_Line_Methods(unittest.TestCase):
   def test_all(self):
@@ -311,3 +311,5 @@ class TestFunction_create_pages_and_lines(unittest.TestCase):
         expected_file_name = "tests/listingfile/TestData/JCOBITCP_JCOBTCC_expected_page_{}.LIS".format(page_no+1)
         with open(expected_file_name, "r") as expected:
           self.assertEqual("\n".join([line.text() for line in pages[page_no]]), expected.read())
+
+  
