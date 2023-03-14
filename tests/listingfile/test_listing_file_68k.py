@@ -132,3 +132,9 @@ class TestFunction_make_pages(unittest.TestCase):
     self.assertEqual(test_make_pages_with("abxabx"),   ["header:ab,content:x", "header:ab,content:x"])
     self.assertEqual(test_make_pages_with("abxababx"), ["header:ab,content:x", "header:ab,content:", "header:ab,content:x"])
     self.assertEqual(test_make_pages_with("abxxxx"),   ["header:ab,content:xxxx"])
+    listingfile.listing_file_68k.check_page_header = original_check_page_header
+
+class TestFunction_remove_undesired_line_breaks(unittest.TestCase):
+
+  def teat_all(self):
+    listingfile.listing_file_68k.remove_undesired_line_breaks()
