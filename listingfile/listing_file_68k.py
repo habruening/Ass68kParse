@@ -41,4 +41,20 @@ def reconstruct_lost_pages(page_no, page):
       if 0 < page_start:
         log.warning("Reconstructing pages after page {}, which were not introduced by the form feed symbol.".format(page_no))
       page_start = line
-  return reconstructed_pages  
+  return reconstructed_pages
+
+def make_pages(page_no, page):
+  def make_page(page, with_header = True):
+    return {"header" : page[0:2] if with_header else [],
+            "content" : page[2:] if with_header else page}
+  if page == []:
+    return []
+  page_header_present = check_page_header(page_no, page)
+  all_pages = reconstruct_lost_pages(page_no, page)
+  result = [make_page(all_pages[0], page_header_present)]
+  result.extend(list(map(lambda page:make_page(page, with_header=True), all_pages[1:])))
+  return result
+  
+def restore_line_breaks(page):
+  result = []
+  return result

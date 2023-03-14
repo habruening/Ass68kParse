@@ -16,6 +16,9 @@ class LineStub:
     self.line = text
   def text(self):
     return self.line
+  
+def lines_to_string(lines):
+  return "".join([line.text() for line in lines])
 
 def create_page_stub(text):
   return list(map(lambda x:LineStub(x), text.splitlines()))
@@ -63,7 +66,7 @@ class TestFunction_check_page_header(unittest.TestCase):
       self.assertIn("too many lines", listingfile.listing_file_68k.log.warnings[0])
          
 
-def check_page_header_stub(page_no, page, logger):
+def check_page_header_stub(page_no, page, logger = False):
   if len(page)<2:
     return False
   if (page[0].text() != "a") or (page[1].text() != "b"):
@@ -108,3 +111,24 @@ class TestFunction_reconstruct_lost_pages(unittest.TestCase):
     test_reconstruct_lost_pages_with("abxab")
     self.assertIn("Reconstructing page", listingfile.listing_file_68k.log.warnings[0])
     listingfile.listing_file_68k.check_page_header = original_check_page_header
+
+def test_make_pages_with(text):
+  pages = listingfile.listing_file_68k.make_pages(17, [LineStub(l) for l in text])
+  return ["header:"+lines_to_string(page["header"])+",content:"+lines_to_string(page["content"]) for page in pages]
+
+class TestFunction_make_pages(unittest.TestCase):
+
+  def test_all(self):
+    original_check_page_header = listingfile.listing_file_68k.check_page_header
+    listingfile.listing_file_68k.check_page_header = check_page_header_stub
+    self.assertEqual(test_make_pages_with(""),         [])
+    self.assertEqual(test_make_pages_with("x"),        ["header:,content:x"])
+    self.assertEqual(test_make_pages_with("xab"),      ["header:,content:x", "header:ab,content:"])
+    self.assertEqual(test_make_pages_with("a"),        ["header:,content:a"])
+    self.assertEqual(test_make_pages_with("ab"),       ["header:ab,content:"])
+    self.assertEqual(test_make_pages_with("aba"),      ["header:ab,content:a"])
+    self.assertEqual(test_make_pages_with("abab"),     ["header:ab,content:", "header:ab,content:"])
+    self.assertEqual(test_make_pages_with("abxab"),    ["header:ab,content:x", "header:ab,content:"])
+    self.assertEqual(test_make_pages_with("abxabx"),   ["header:ab,content:x", "header:ab,content:x"])
+    self.assertEqual(test_make_pages_with("abxababx"), ["header:ab,content:x", "header:ab,content:", "header:ab,content:x"])
+    self.assertEqual(test_make_pages_with("abxxxx"),   ["header:ab,content:xxxx"])
