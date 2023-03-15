@@ -18,7 +18,10 @@ class Line:
     self.file = file
   def text(self):
     return self.file[self.from_to[0]:self.from_to[1]]
-
+  
+def lines_text(lines, with_line_breaks = True):
+  return ("\n" if with_line_breaks else "").join([line.text() for line in lines])
+    
 def find_first_of(text, values): 
   best_match = False
   for value in values:

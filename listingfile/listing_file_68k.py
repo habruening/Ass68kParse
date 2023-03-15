@@ -55,11 +55,18 @@ def make_pages(page_no, page):
   result.extend(list(map(lambda page:make_page(page, with_header=True), all_pages[1:])))
   return result
   
-def remove_undesired_line_breaks(page):
+def remove_undesired_line_breaks(page_content):
   # This behaviour is probably incomplete. It is unclear, how line breaks are introduced. We give our best
   # to identify them. In case problems, this function must be improved.
   line_before = False
-  for line in page:
+  for line in page_content:
+  if ((len(line_before.text())) % 132) and len(line.text()) and line.text() != " ":
+    line_before.append(line)
+  else:
+    yield line before
+    line_before = line
+  
     
+
     print(line.text())
     line_before = line

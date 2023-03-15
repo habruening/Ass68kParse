@@ -19,6 +19,27 @@ class TestClass_Line_Methods(unittest.TestCase):
     self.assertEqual(line.text(), "4567")
     self.assertEqual(line.line_no, 17)
 
+def test_lines_text_with(file, lines, with_line_breaks):
+  lines = map(lambda from_to : listingfile.printed_file.Line(17, from_to, file), lines)
+  return listingfile.printed_file.lines_text(lines, with_line_breaks)
+
+class TestFunction_lines_text(unittest.TestCase):
+
+  def test_all(self):
+    print(test_lines_text_with("", [(0,0)], with_line_breaks = False))
+    print(test_lines_text_with("", [(0,1)], with_line_breaks = False))
+    print(test_lines_text_with("x", [(0,0)], with_line_breaks = False))
+    print(test_lines_text_with("x", [(0,1)], with_line_breaks = False))
+    print(test_lines_text_with("x", [(3,5)], with_line_breaks = False))
+    print(test_lines_text_with("x", [(3,5)], with_line_breaks = False))
+    print(test_lines_text_with("abcdefghij", [(0,1)], with_line_breaks = False))
+    print(test_lines_text_with("abcdefghij", [(0,2)], with_line_breaks = False))
+    print(test_lines_text_with("abcdefghij", [(2,4)], with_line_breaks = False))
+    print(test_lines_text_with("abcdefghij", [(4,8)], with_line_breaks = False))
+    print(test_lines_text_with("abcdefghij", [(0,3), (4,6)], with_line_breaks = False))
+    more tests
+
+
 class TestFunction_find_first_of(unittest.TestCase):
 
   def test_normal_operation(self):
