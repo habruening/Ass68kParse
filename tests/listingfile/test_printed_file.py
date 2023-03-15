@@ -26,19 +26,17 @@ def test_lines_text_with(file, lines, with_line_breaks):
 class TestFunction_lines_text(unittest.TestCase):
 
   def test_all(self):
-    print(test_lines_text_with("", [(0,0)], with_line_breaks = False))
-    print(test_lines_text_with("", [(0,1)], with_line_breaks = False))
-    print(test_lines_text_with("x", [(0,0)], with_line_breaks = False))
-    print(test_lines_text_with("x", [(0,1)], with_line_breaks = False))
-    print(test_lines_text_with("x", [(3,5)], with_line_breaks = False))
-    print(test_lines_text_with("x", [(3,5)], with_line_breaks = False))
-    print(test_lines_text_with("abcdefghij", [(0,1)], with_line_breaks = False))
-    print(test_lines_text_with("abcdefghij", [(0,2)], with_line_breaks = False))
-    print(test_lines_text_with("abcdefghij", [(2,4)], with_line_breaks = False))
-    print(test_lines_text_with("abcdefghij", [(4,8)], with_line_breaks = False))
-    print(test_lines_text_with("abcdefghij", [(0,3), (4,6)], with_line_breaks = False))
-    more tests
-
+    self.assertEqual(test_lines_text_with("", [(0,0)], with_line_breaks = False), "")
+    self.assertEqual(test_lines_text_with("", [(0,1)], with_line_breaks = False), "")
+    self.assertEqual(test_lines_text_with("x", [(0,0)], with_line_breaks = False), "")
+    self.assertEqual(test_lines_text_with("x", [(0,1)], with_line_breaks = False), "x")
+    self.assertEqual(test_lines_text_with("x", [(3,5)], with_line_breaks = False), "")
+    self.assertEqual(test_lines_text_with("abcdefghij", [(0,1)], with_line_breaks = False), "a")
+    self.assertEqual(test_lines_text_with("abcdefghij", [(0,2)], with_line_breaks = False), "ab")
+    self.assertEqual(test_lines_text_with("abcdefghij", [(2,4)], with_line_breaks = False), "cd")
+    self.assertEqual(test_lines_text_with("abcdefghij", [(4,8)], with_line_breaks = False), "efgh")
+    self.assertEqual(test_lines_text_with("abcdefghij", [(0,3), (4,6)], with_line_breaks = False), "abcef")
+    self.assertEqual(test_lines_text_with("abcdefghij", [(0,1), (2,3), (6,7), (9,10), (4,5)], with_line_breaks = False), "acgje")
 
 class TestFunction_find_first_of(unittest.TestCase):
 
