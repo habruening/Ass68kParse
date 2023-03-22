@@ -54,19 +54,25 @@ def make_pages(page_no, page):
   result = [make_page(all_pages[0], page_header_present)]
   result.extend(list(map(lambda page:make_page(page, with_header=True), all_pages[1:])))
   return result
-  
-def remove_undesired_line_breaks(page_content):
-  # This behaviour is probably incomplete. It is unclear, how line breaks are introduced. We give our best
-  # to identify them. In case problems, this function must be improved.
-  line_before = False
-  for line in page_content:
-  if ((len(line_before.text())) % 132) and len(line.text()) and line.text() != " ":
-    line_before.append(line)
-  else:
-    yield line before
-    line_before = line
-  
-    
 
-    print(line.text())
-    line_before = line
+
+def remove_undesired_line_breaks(page_content, line_length=132):
+  # This behaviour is probably incomplete. It is unclear, how line breaks are introduced. We give our best to
+  # identify and eliminate them. In case of problems, this function is a source of errors and must be improved.
+  result = []
+  line_before = []
+  for line in page_content + [None]:
+    def is_line_continuation():
+      return (not(len(printed_file.lines_text(line_before, with_line_breaks=False)) % line_length) and len(line.text()) and line.text() != " ")
+    if not line_before:
+      print("start line:" + line.text() if line else "")
+      line_before = [line]
+    elif is_line_continuation():
+      print("continue line:" + line.text())
+      line_before.append(line)
+    else:
+      print("line complete:" + printed_file.lines_text(line_before))
+      result.append(line_before)
+      line_before = [line]
+  print(result)
+  return result

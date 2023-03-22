@@ -134,7 +134,26 @@ class TestFunction_make_pages(unittest.TestCase):
     self.assertEqual(test_make_pages_with("abxxxx"),   ["header:ab,content:xxxx"])
     listingfile.listing_file_68k.check_page_header = original_check_page_header
 
+def test_remove_undesired_line_breaks_with(page):
+  page = create_page_stub(page)
+  lines = listingfile.listing_file_68k.remove_undesired_line_breaks(page, 3)
+  return list(map(lines_to_string, lines))
+
 class TestFunction_remove_undesired_line_breaks(unittest.TestCase):
 
-  def teat_all(self):
-    listingfile.listing_file_68k.remove_undesired_line_breaks()
+  def test_all(self):
+    
+    self.assertEqual(test_remove_undesired_line_breaks_with(""), [])
+    self.assertEqual(test_remove_undesired_line_breaks_with("1"), ["1"])
+    self.assertEqual(test_remove_undesired_line_breaks_with("1 2"), ["1 2"])
+    self.assertEqual(test_remove_undesired_line_breaks_with("1 2\n3"), ["1 23"])
+    page = create_page_stub("")
+    self.assertEqual(listingfile.listing_file_68k.remove_undesired_line_breaks(page, 3), [])
+    page = create_page_stub("1")
+    self.assertEqual(listingfile.listing_file_68k.remove_undesired_line_breaks(page, 3), ["1"])
+    page = create_page_stub("1 2")
+    self.assertEqual(listingfile.listing_file_68k.remove_undesired_line_breaks(page, 3), ["1 d2"])
+    page = create_page_stub("")
+    self.assertEqual(listingfile.listing_file_68k.remove_undesired_line_breaks(page, 3), [])
+    page = create_page_stub("1 2\n3")
+    self.assertEqual(listingfile.listing_file_68k.remove_undesired_line_breaks(page, 3), ["1 23"])
