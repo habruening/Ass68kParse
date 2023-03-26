@@ -60,19 +60,13 @@ def remove_undesired_line_breaks(page_content, line_length=132):
   # This behaviour is probably incomplete. It is unclear, how line breaks are introduced. We give our best to
   # identify and eliminate them. In case of problems, this function is a source of errors and must be improved.
   result = []
-  line_before = []
+  lines_before = []
   for line in page_content + [None]:
-    def is_line_continuation():
-      return (not(len(printed_file.lines_text(line_before, with_line_breaks=False)) % line_length) and len(line.text()) and line.text() != " ")
-    if not line_before:
-      print("start line:" + line.text() if line else "")
-      line_before = [line]
-    elif is_line_continuation():
-      print("continue line:" + line.text())
-      line_before.append(line)
+    is_line_continuation = (not(lines_before)
+             or ( len(lines_before[-1].text())==line_length and line and line.text() and line.text()[0] != " "))
+    if is_line_continuation:
+      lines_before.append(line)
     else:
-      print("line complete:" + printed_file.lines_text(line_before))
-      result.append(line_before)
-      line_before = [line]
-  print(result)
+      result.append(lines_before)
+      lines_before = [line]
   return result
