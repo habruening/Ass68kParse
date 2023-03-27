@@ -3,6 +3,8 @@ from . import printed_file
 import logging
 log = logging.getLogger(__name__)
 
+import itertools
+
 def check_page_header(page_no, page, logger = log):
   """ A correct page header looks this way:
 JCOBTCC_BIT_Test_Controller                                     28-Apr-2017 14:57:43    XD Ada V1.2A-33                     Page   2
@@ -55,6 +57,19 @@ def make_pages(page_no, page):
   result.extend(list(map(lambda page:make_page(page, with_header=True), all_pages[1:])))
   return result
 
+class Line:
+  def __init__(self, page_no, page_header, line):
+    self.page_no = page_no
+    self.page_header = page_header
+    self.content = line
+  def text(self):
+    return self.line.text()
+
+def pages_as_lines(pages):
+  result = []
+  for page_no, page in zip(itertools.count(), pages):
+    result.extend(list(map(lambda line : Line(page_no, page["header"], line), page["content"])))
+  return result
 
 def remove_undesired_line_breaks(page_content, line_length=132):
   # This behaviour is probably incomplete. It is unclear, how line breaks are introduced. We give our best to

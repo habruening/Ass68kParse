@@ -169,4 +169,24 @@ class TestFunction_remove_undesired_line_breaks(unittest.TestCase):
     self.assertEqual(test_remove_undesired_line_breaks_with("1 2\n3 4\n5 6\n"), ["1 23 45 6"])
     self.assertEqual(test_remove_undesired_line_breaks_with("1 2\n3 4\n5 6\n 7\n"), ["1 23 45 6", " 7"])
     self.assertEqual(test_remove_undesired_line_breaks_with("1 2\n3 4\n \n"), ["1 23 4", " "])
-    
+
+def test_pages_as_lines_with(headers, pages):
+  pages = list(map(lambda header, page : {"header" : header, "content" : list(map(lambda line : LineStub(line), page))}, headers, pages))
+  for line in listingfile.listing_file_68k.pages_as_lines(pages):
+    print(line.page_header + ":" + line.content.text())
+
+class Test_pages_as_lines(unittest.TestCase):
+  test_pages_as_lines_with(["xyz", "uvw"], [["abc", "def"], ["mno"]])
+
+class Test_SAT(unittest.TestCase):
+
+  def test_with_real_file(self):
+
+    with open("tests/listingfile/TestData/JCOBITCP_JCOBTCC.LIS", "r") as input:
+      listingfile.printed_file.log.warnings = []
+      pages = listingfile.printed_file.create_pages_and_lines(input.read())
+      #self.assertFalse(listingfile.printed_file.log.warnings)
+      for page_no in range(0, 6):
+        expected_file_name = "tests/listingfile/TestData/JCOBITCP_JCOBTCC_expected_page_{}.LIS".format(page_no+1)
+        with open(expected_file_name, "r") as expected:
+          self.assertEqual("\n".join([line.text() for line in pages[page_no]]), expected.read())
