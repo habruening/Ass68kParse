@@ -171,13 +171,42 @@ class TestFunction_remove_undesired_line_breaks(unittest.TestCase):
     self.assertEqual(test_remove_undesired_line_breaks_with("1 2\n3 4\n \n"), ["1 23 4", " "])
 
 def test_pages_as_lines_with(headers, pages):
-  pages = list(map(lambda header, page : {"header" : header, "content" : list(map(lambda line : LineStub(line), page))}, headers, pages))
-  for line in listingfile.listing_file_68k.pages_as_lines(pages):
-    print(line.page_header + ":" + line.content.text())
+  lines = listingfile.listing_file_68k.pages_as_lines(
+    map(lambda header, page : {"header" : header,
+                                    "content" : list(map(lambda line : LineStub(line), page))},
+                    headers, pages))
+  return ["{}:{}:{}".format(line.page_no,line.page_header,line.content.text()) for line in lines]
 
 class Test_pages_as_lines(unittest.TestCase):
-  test_pages_as_lines_with(["xyz", "uvw"], [["abc", "def"], ["mno"]])
 
+  def test_all(self):
+    self.assertEqual(test_pages_as_lines_with([],[]),
+                     [])
+    self.assertEqual(test_pages_as_lines_with(["page_1"],[]),             
+                     [])
+    self.assertEqual(test_pages_as_lines_with(["page_1"],[["line_1"]]),
+                     ["0:page_1:line_1"])
+    self.assertEqual(test_pages_as_lines_with([""], [["line_1"]]),  
+                     ["0::line_1"])
+    self.assertEqual(test_pages_as_lines_with(["page_1"], [["line_1", "line_2"]]),   
+                     ["0:page_1:line_1", "0:page_1:line_2"])
+    self.assertEqual(test_pages_as_lines_with(["page_1"], [["", "line_2"]]),   
+                     ["0:page_1:", "0:page_1:line_2"])
+    self.assertEqual(test_pages_as_lines_with(["page_1"], [["line_1", ""]]),   
+                     ["0:page_1:line_1", "0:page_1:"])
+    self.assertEqual(test_pages_as_lines_with(["page_1", "page_2"], [["line_1", "line_2"], []]),   
+                     ["0:page_1:line_1", "0:page_1:line_2"])
+    self.assertEqual(test_pages_as_lines_with(["page_1", "page_2"], [["line_1", "line_2"], ["line_3"]]),   
+                     ["0:page_1:line_1", "0:page_1:line_2", "1:page_2:line_3"])
+    self.assertEqual(test_pages_as_lines_with(["page_1", "page_2"], [["line_1", "line_2"], ["line_3", "line_4"]]),   
+                     ["0:page_1:line_1", "0:page_1:line_2", "1:page_2:line_3", "1:page_2:line_4"])
+    self.assertEqual(test_pages_as_lines_with(["page_1", "page_2"], [["line_1", "line_2"], ["line_3", ""]]),   
+                     ["0:page_1:line_1", "0:page_1:line_2", "1:page_2:line_3", "1:page_2:"])
+    self.assertEqual(test_pages_as_lines_with(["page_1", "page_2"], [[], ["line_1"]]),   
+                     ["1:page_2:line_1"])
+    self.assertEqual(test_pages_as_lines_with(["page_1", "page_2"], [["line_1"], []]),   
+                     ["0:page_1:line_1"])
+    
 class Test_SAT(unittest.TestCase):
 
   def test_with_real_file(self):
