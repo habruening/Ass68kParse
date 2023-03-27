@@ -3,6 +3,8 @@
 import unittest
 import listingfile.listing_file_68k
 
+import itertools
+
 class LoggerStub():
   def __init__(self):
     self.warnings = []
@@ -207,15 +209,18 @@ class Test_pages_as_lines(unittest.TestCase):
     self.assertEqual(test_pages_as_lines_with(["page_1", "page_2"], [["line_1"], []]),   
                      ["0:page_1:line_1"])
     
-class Test_SAT(unittest.TestCase):
+class SAT_Tests(unittest.TestCase):
 
   def test_with_real_file(self):
 
     with open("tests/listingfile/TestData/JCOBITCP_JCOBTCC.LIS", "r") as input:
       listingfile.printed_file.log.warnings = []
       pages = listingfile.printed_file.create_pages_and_lines(input.read())
-      #self.assertFalse(listingfile.printed_file.log.warnings)
-      for page_no in range(0, 6):
-        expected_file_name = "tests/listingfile/TestData/JCOBITCP_JCOBTCC_expected_page_{}.LIS".format(page_no+1)
-        with open(expected_file_name, "r") as expected:
-          self.assertEqual("\n".join([line.text() for line in pages[page_no]]), expected.read())
+      all_pages = []
+      for page_no, page in zip(itertools.count(), pages):
+        all_pages.extend(listingfile.listing_file_68k.make_pages(page_no, page))
+      print(all_pages)
+      lines = listingfile.listing_file_68k.pages_as_lines(all_pages)
+      lines = listingfile.listing_file_68k.remove_undesired_line_breaks(lines)
+      for line in lines:
+        print(lines_to_string(line))

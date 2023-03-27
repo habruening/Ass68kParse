@@ -63,7 +63,7 @@ class Line:
     self.page_header = page_header
     self.content = line
   def text(self):
-    return self.line.text()
+    return self.content.text()
 
 def pages_as_lines(pages):
   result = []
