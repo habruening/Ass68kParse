@@ -53,6 +53,8 @@ def create_pages_and_lines(file):
   result = []
   line_no = 0
   for page in split_pages(file):
+    if page[0] == page[1]:
+      line_no = line_no + 1 # empty pages count as one line
     new_page = []
     for line in split_lines(file[page[0]:page[1]]):
       line = Line(line_no, (page[0]+line[0], page[0]+line[1]), file)

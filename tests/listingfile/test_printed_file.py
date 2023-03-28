@@ -179,6 +179,10 @@ class TestFunction_split_pages(unittest.TestCase):
     pages = listingfile.printed_file.split_pages("\f\r\n")
     self.assertEqual(next(pages), (0,0))
     self.assertEqual(list(pages), [])
+    pages = listingfile.printed_file.split_pages("\f\r\nx")
+    self.assertEqual(next(pages), (0,0))
+    self.assertEqual(next(pages), (3,4))
+    self.assertEqual(list(pages), [])
     pages = listingfile.printed_file.split_pages("\f\n")
     self.assertEqual(next(pages), (0,0))
     self.assertEqual(list(pages), [])
@@ -303,6 +307,8 @@ class TestFunction_create_pages_and_lines(unittest.TestCase):
       pages = listingfile.printed_file.create_pages_and_lines(example)
       line_no = 0
       for page in pages:
+        if not(page):
+          line_no = line_no + 1
         for line in page:
           self.assertEqual(line.line_no, line_no)
           line_no = line_no + 1
@@ -321,6 +327,18 @@ class TestFunction_create_pages_and_lines(unittest.TestCase):
       with self.assertRaises(StopIteration):
         next(expected)
 
+  def test_empty_page(self):
+    pages = listingfile.printed_file.create_pages_and_lines("\f\r\nx\f\r\n\f\r\nx")
+    self.assertEqual(pages[0], [])
+    self.assertEqual(pages[1][0].from_to[0], 3)
+    self.assertEqual(pages[1][0].from_to[1], 4)
+    self.assertEqual(pages[1][0].line_no, 1)
+    self.assertEqual(pages[2], [])
+    self.assertEqual(pages[3][0].from_to[0], 10)
+    self.assertEqual(pages[3][0].from_to[1], 11)
+    self.assertEqual(pages[3][0].line_no, 3)
+
+
   def test_with_real_file(self):
     with open("tests/listingfile/TestData/JCOBITCP_JCOBTCC.LIS", "r") as input:
       listingfile.printed_file.log.warnings = []
@@ -330,5 +348,3 @@ class TestFunction_create_pages_and_lines(unittest.TestCase):
         expected_file_name = "tests/listingfile/TestData/JCOBITCP_JCOBTCC_expected_page_{}.LIS".format(page_no+1)
         with open(expected_file_name, "r") as expected:
           self.assertEqual("\n".join([line.text() for line in pages[page_no]]), expected.read())
-
-  
