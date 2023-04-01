@@ -226,6 +226,11 @@ class TestFunction_split_pages(unittest.TestCase):
     self.assertEqual(next(pages), (2,2))
     self.assertEqual(next(pages), (4,4))
     self.assertEqual(next(pages), (6,7))
+    pages = listingfile.printed_file.split_pages("\f\n\f\n\f\r\n\n")
+    self.assertEqual(next(pages), (0,0))
+    self.assertEqual(next(pages), (2,2))
+    self.assertEqual(next(pages), (4,4))
+    self.assertEqual(next(pages), (7,8))
 
 class TestFunction_split_lines(unittest.TestCase):
 
