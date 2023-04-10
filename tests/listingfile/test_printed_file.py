@@ -40,6 +40,9 @@ class TestFunction_lines_text(unittest.TestCase):
 
 class TestFunction_find_first_of(unittest.TestCase):
 
+  # find_first_of(..., [""]) is not foreseen and therefore not tested. There would be no
+  # error reporting and no exception been raised.
+
   def test_normal_operation(self):
     found_at = listingfile.printed_file.find_first_of("abcdefg", ["a"])
     self.assertEqual(found_at, (0,"a"))
@@ -102,6 +105,11 @@ class TestFunction_find_first_of(unittest.TestCase):
 
 class TestFunction_split_at(unittest.TestCase):
 
+  # split_at(..., [""]) is not foreseen and therefore not tested. There would be no
+  # error reporting and no exception been raised. It would result in an endless loop.
+  # Defensive programming is not needed. The caller must ensure that the function is
+  # called correctly.
+
   def test_normal_operation(self):
     elements = listingfile.printed_file.split_at("abcdefg", ["x"])
     self.assertEqual(list(elements), [(0,7)])
@@ -110,19 +118,15 @@ class TestFunction_split_at(unittest.TestCase):
     elements = listingfile.printed_file.split_at("abcdefg", ["c"])
     self.assertEqual(list(elements), [(0,2), (3,7)])
     elements = listingfile.printed_file.split_at("abcdefg", ["g"])
-    self.assertEqual(list(elements), [(0,6)])
+    self.assertEqual(list(elements), [(0,6), (7,7)])
     elements = listingfile.printed_file.split_at("abcdefg", ["a", "d", "g", "x"])
-    self.assertEqual(list(elements), [(0,0), (1,3), (4,6)])
+    self.assertEqual(list(elements), [(0,0), (1,3), (4,6), (7,7)])
 
   def test_empty_string(self):
     elements = listingfile.printed_file.split_at("", [])
-    self.assertFalse(list(elements))
-    elements = listingfile.printed_file.split_at("", [""])
-    self.assertFalse(list(elements))
-    elements = listingfile.printed_file.split_at("", ["", ""])
-    self.assertFalse(list(elements))
-    elements = listingfile.printed_file.split_at("", ["", "x"])
-    self.assertFalse(list(elements))
+    self.assertEqual(list(elements), [(0,0)])
+    elements = listingfile.printed_file.split_at("", ["x"])
+    self.assertEqual(list(elements), [(0,0)])
 
   def test_warnings(self):
     listingfile.printed_file.log.warnings = []
@@ -172,12 +176,15 @@ class TestFunction_split_pages(unittest.TestCase):
 
   def test_empty_pages(self):
     pages = listingfile.printed_file.split_pages("")
+    self.assertEqual(next(pages), (0,0))
     self.assertEqual(len(list(pages)), 0)
     pages = listingfile.printed_file.split_pages("\f")
     self.assertEqual(next(pages), (0,0))
+    self.assertEqual(next(pages), (1,1))
     self.assertEqual(list(pages), [])
     pages = listingfile.printed_file.split_pages("\f\r\n")
     self.assertEqual(next(pages), (0,0))
+    self.assertEqual(next(pages), (3,3))
     self.assertEqual(list(pages), [])
     pages = listingfile.printed_file.split_pages("\f\r\nx")
     self.assertEqual(next(pages), (0,0))
@@ -185,21 +192,25 @@ class TestFunction_split_pages(unittest.TestCase):
     self.assertEqual(list(pages), [])
     pages = listingfile.printed_file.split_pages("\f\n")
     self.assertEqual(next(pages), (0,0))
+    self.assertEqual(next(pages), (2,2))
     self.assertEqual(list(pages), [])
     pages = listingfile.printed_file.split_pages("\f\f\f")
     self.assertEqual(next(pages), (0,0))
     self.assertEqual(next(pages), (1,1))
     self.assertEqual(next(pages), (2,2))
+    self.assertEqual(next(pages), (3,3))
     self.assertEqual(list(pages), [])
     pages = listingfile.printed_file.split_pages("x\f\f\f")
     self.assertEqual(next(pages), (0,1))
     self.assertEqual(next(pages), (2,2))
     self.assertEqual(next(pages), (3,3))
+    self.assertEqual(next(pages), (4,4))
     self.assertEqual(list(pages), [])
     pages = listingfile.printed_file.split_pages("\fx\f\f")
     self.assertEqual(next(pages), (0,0))
     self.assertEqual(next(pages), (1,2))
     self.assertEqual(next(pages), (3,3))
+    self.assertEqual(next(pages), (4,4))
     self.assertEqual(list(pages), [])
     pages = listingfile.printed_file.split_pages("\f\f\fx")
     self.assertEqual(next(pages), (0,0))
@@ -210,16 +221,19 @@ class TestFunction_split_pages(unittest.TestCase):
     self.assertEqual(next(pages), (0,0))
     self.assertEqual(next(pages), (2,2))
     self.assertEqual(next(pages), (4,4))
+    self.assertEqual(next(pages), (6,6))
     self.assertEqual(list(pages), [])
     pages = listingfile.printed_file.split_pages("x\f\n\f\n\f\n")
     self.assertEqual(next(pages), (0,1))
     self.assertEqual(next(pages), (3,3))
     self.assertEqual(next(pages), (5,5))
+    self.assertEqual(next(pages), (7,7))
     self.assertEqual(list(pages), [])
     pages = listingfile.printed_file.split_pages("\f\nx\f\n\f\n")
     self.assertEqual(next(pages), (0,0))
     self.assertEqual(next(pages), (2,3))
     self.assertEqual(next(pages), (5,5))
+    self.assertEqual(next(pages), (7,7))
     self.assertEqual(list(pages), [])
     pages = listingfile.printed_file.split_pages("\f\n\f\n\f\nx")
     self.assertEqual(next(pages), (0,0))
@@ -248,6 +262,7 @@ class TestFunction_split_lines(unittest.TestCase):
     self.assertEqual(next(pages), (4,5))
     self.assertEqual(list(pages), [])
 
+
   def test_line_breaks(self):
     pages = listingfile.printed_file.split_lines("x\ny")
     self.assertEqual(next(pages), (0,1))
@@ -255,6 +270,7 @@ class TestFunction_split_lines(unittest.TestCase):
     self.assertEqual(list(pages), [])
     pages = listingfile.printed_file.split_lines("x\n\ry")
     self.assertEqual(next(pages), (0,1))
+    self.assertEqual(next(pages), (2,2))
     self.assertEqual(next(pages), (3,4))
     self.assertEqual(list(pages), [])
     pages = listingfile.printed_file.split_lines("x\r\ny")
@@ -264,46 +280,63 @@ class TestFunction_split_lines(unittest.TestCase):
 
   def test_empty_lines(self):
     pages = listingfile.printed_file.split_lines("")
+    self.assertEqual(next(pages), (0,0))
     self.assertEqual(len(list(pages)), 0)
     pages = listingfile.printed_file.split_lines("\n")
     self.assertEqual(next(pages), (0,0))
+    self.assertEqual(next(pages), (1,1))
     self.assertEqual(list(pages), [])
     pages = listingfile.printed_file.split_lines("\r")
     self.assertEqual(next(pages), (0,0))
+    self.assertEqual(next(pages), (1,1))
     self.assertEqual(list(pages), [])
     pages = listingfile.printed_file.split_lines("\r\n")
     self.assertEqual(next(pages), (0,0))
+    self.assertEqual(next(pages), (2,2))
     self.assertEqual(list(pages), [])
     pages = listingfile.printed_file.split_lines("\n\r")
     self.assertEqual(next(pages), (0,0))
+    self.assertEqual(next(pages), (1,1))
+    self.assertEqual(next(pages), (2,2))
     self.assertEqual(list(pages), [])
     pages = listingfile.printed_file.split_lines("\r\n\r")
     self.assertEqual(next(pages), (0,0))
     self.assertEqual(next(pages), (2,2))
+    self.assertEqual(next(pages), (3,3))
     self.assertEqual(list(pages), [])
     pages = listingfile.printed_file.split_lines("\n\r\r")
     self.assertEqual(next(pages), (0,0))
+    self.assertEqual(next(pages), (1,1))
     self.assertEqual(next(pages), (2,2))
+    self.assertEqual(next(pages), (3,3))
     self.assertEqual(list(pages), [])
     pages = listingfile.printed_file.split_lines("\n\n\r")
     self.assertEqual(next(pages), (0,0))
     self.assertEqual(next(pages), (1,1))
+    self.assertEqual(next(pages), (2,2))
+    self.assertEqual(next(pages), (3,3))
     self.assertEqual(list(pages), [])
     pages = listingfile.printed_file.split_lines("\r\r\n")
     self.assertEqual(next(pages), (0,0))
     self.assertEqual(next(pages), (1,1))
+    self.assertEqual(next(pages), (3,3))
+    self.assertEqual(list(pages), [])
+    pages = listingfile.printed_file.split_lines("\r\n\r")
+    self.assertEqual(next(pages), (0,0))
+    self.assertEqual(next(pages), (2,2))
+    self.assertEqual(next(pages), (3,3))
     self.assertEqual(list(pages), [])
 
 class TestFunction_create_pages_and_lines(unittest.TestCase):
   def test_constructor(self):
     pages = listingfile.printed_file.create_pages_and_lines("\f\n1\n2\f3\f4\f5\f\f6")
-    self.assertFalse(pages[0])
+    self.assertEqual(pages[0][0].text(), "")
     self.assertEqual(pages[1][0].text(), "1")
     self.assertEqual(pages[1][1].text(), "2")
     self.assertEqual(pages[2][0].text(), "3")
     self.assertEqual(pages[3][0].text(), "4")
     self.assertEqual(pages[4][0].text(), "5")
-    self.assertFalse(pages[5])
+    self.assertEqual(pages[5][0].text(), "")
     self.assertEqual(pages[6][0].text(), "6")
 
   def test_all(self):
@@ -312,15 +345,13 @@ class TestFunction_create_pages_and_lines(unittest.TestCase):
       pages = listingfile.printed_file.create_pages_and_lines(example)
       line_no = 0
       for page in pages:
-        if not(page):
-          line_no = line_no + 1
         for line in page:
           self.assertEqual(line.line_no, line_no)
           line_no = line_no + 1
           self.assertEqual(example[line.from_to[0]:line.from_to[1]], line.text())
       self.assertEqual("".join(["".join([l.text() for l in p]) for p in pages]),
                        example.replace("\n","").replace("\r", "").replace("\f", ""))
-      
+    
   def test_line_numbering(self):
     with open("tests/listingfile/TestData/LineAndPageBreaks.txt", "r") as input, \
          open("tests/listingfile/TestData/LineAndPageBreaks_expected.txt", "r") as expected:
@@ -333,23 +364,26 @@ class TestFunction_create_pages_and_lines(unittest.TestCase):
         next(expected)
 
   def test_empty_page(self):
+    """       0 1 2 3       4 5 6         7 8 9 10
+             \f\r\n x      \f\r\n        \f\r\n x
+       [0][0]       [1][0]        [2][0]        [3][0]"""
     pages = listingfile.printed_file.create_pages_and_lines("\f\r\nx\f\r\n\f\r\nx")
-    self.assertEqual(pages[0], [])
-    self.assertEqual(pages[1][0].from_to[0], 3)
-    self.assertEqual(pages[1][0].from_to[1], 4)
+    self.assertEqual(pages[0][0].from_to, (0,0))
+    self.assertEqual(pages[0][0].line_no, 0)
+    self.assertEqual(pages[1][0].from_to, (3,4))
     self.assertEqual(pages[1][0].line_no, 1)
-    self.assertEqual(pages[2], [])
-    self.assertEqual(pages[3][0].from_to[0], 10)
-    self.assertEqual(pages[3][0].from_to[1], 11)
+    self.assertEqual(pages[2][0].from_to, (7,7))
+    self.assertEqual(pages[2][0].line_no, 2)
+    self.assertEqual(pages[3][0].from_to, (10,11))
     self.assertEqual(pages[3][0].line_no, 3)
 
-
   def test_with_real_file(self):
+    self.maxDiff = 2000
     with open("tests/listingfile/TestData/JCOBITCP_JCOBTCC.LIS", "r") as input:
       listingfile.printed_file.log.warnings = []
       pages = listingfile.printed_file.create_pages_and_lines(input.read())
       self.assertFalse(listingfile.printed_file.log.warnings)
-      for page_no in range(0, 6):
+      for page_no in range(0, 7):
         expected_file_name = "tests/listingfile/TestData/JCOBITCP_JCOBTCC_expected_page_{}.LIS".format(page_no+1)
         with open(expected_file_name, "r") as expected:
           self.assertEqual("\n".join([line.text() for line in pages[page_no]]), expected.read())

@@ -22,7 +22,8 @@ class Line:
 def lines_text(lines, with_line_breaks = True):
   return ("\n" if with_line_breaks else "").join([line.text() for line in lines])
     
-def find_first_of(text, values): 
+def find_first_of(text, values):
+  """find_first_of cannot be be called with "" in values """
   best_match = False
   for value in values:
     if 0 <= (found_at := text.find(value)):
@@ -32,29 +33,29 @@ def find_first_of(text, values):
   return best_match
 
 def split_at(file, separators, warn_if_separator = []):
+  """find_first_of cannot be be called with "" in separators """
+  """If this function is called inco"""
   position = 0
-  while (position < len(file)):
-    if page_break_at := find_first_of(file[position:], separators):
-      if page_break_at[1] in warn_if_separator:
-        log.warning("There are incorrect newline encodings. Line numbers will be incorrect.")
-      yield (position, position + page_break_at[0])
-      position = position + page_break_at[0] + len(page_break_at[1])
+  while (True):
+    if found_at := find_first_of(file[position:], separators):
+      if found_at[1] in warn_if_separator:
+        log.warning("There are incorrect newline encodings. Line numbers may be incorrect.")
+      yield (position, position + found_at[0])
+      position = position + found_at[0] + len(found_at[1])
     else:
       yield (position, len(file))
-      position = len(file)
+      break
 
 def split_pages(file):
   yield from split_at(file, ["\f\r\n", "\f\n\r", "\f\n", "\f\r", "\f"], ["\f"])
 
 def split_lines(file):
-  yield from split_at(file, ["\r\n", "\n\r", "\n", "\r"], ["\n\r"])
+  yield from split_at(file, ["\r\n", "\n", "\r"])
 
 def create_pages_and_lines(file):
   result = []
   line_no = 0
   for page in split_pages(file):
-    if page[0] == page[1]:
-      line_no = line_no + 1 # empty pages count as one line
     new_page = []
     for line in split_lines(file[page[0]:page[1]]):
       line = Line(line_no, (page[0]+line[0], page[0]+line[1]), file)
