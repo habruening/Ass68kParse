@@ -213,14 +213,18 @@ class SAT_Tests(unittest.TestCase):
 
   def test_with_real_file(self):
 
-    with open("tests/listingfile/TestData/JCOBITCP_JCOBTCC.LIS", "r") as input:
+    with open("tests/listingfile/TestData/JCOBITCP_JCOBTCC.LIS", "r") as input, \
+         open("tests/listingfile/TestData/JCOBITCP_JCOBTCC_expected_lines.LIS") as expected_lines:
+      expected_lines = expected_lines.read().splitlines()
       listingfile.printed_file.log.warnings = []
       pages = listingfile.printed_file.create_pages_and_lines(input.read())
       all_pages = []
       for page_no, page in zip(itertools.count(), pages):
         all_pages.extend(listingfile.listing_file_68k.make_pages(page_no, page))
-      print(all_pages)
       lines = listingfile.listing_file_68k.pages_as_lines(all_pages)
-      lines = listingfile.listing_file_68k.remove_undesired_line_breaks(lines)
       for line in lines:
-        print(lines_to_string(line))
+        self.assertEqual(expected_lines[line.content.line_no], line.text())
+      #  print(expected_line)
+      #  print(line.text())
+      #lines = listingfile.listing_file_68k.remove_undesired_line_breaks(lines)
+#       print(lines_to_string(line))
