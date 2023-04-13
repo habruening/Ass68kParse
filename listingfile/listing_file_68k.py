@@ -29,21 +29,30 @@ JCOBTCC_BIT_Test_Controller                                     28-Apr-2017 14:5
     return False
   return True
 
-def reconstruct_lost_pages(page_no, pages):
+def reconstruct_lost_pages(page_no, lines):
   # The purpose of this function is to reconstruct pages in case the form feed symbols are missing. This is likely
   # to happen when the dos2unix command is used or when the file is changed in a text editor.
   class NoLogging:
     def warning(self):
       pass
-  def produce_pages(pages, next_page, lines, logger = NoLogging):
+  pages = []
+  next_page = []
+  logger = NoLogging
+  while True:
+    # This is a recursive algorithm. As recursion it is much easyier to understand. But Python does
+    # not support recursion. Therefore it must be a while loop.
     if not(lines):
       return pages + [next_page]
     if check_page_header(page_no, lines, NoLogging):
       logger.warning("Reconstructing pages after page {}, which were not introduced by the form feed symbol.".format(page_no))
-      return produce_pages(pages + ([next_page] if next_page else []), lines[:2], lines[2:], log) 
+      pages = pages + ([next_page] if next_page else [])
+      next_page = lines[:2]
+      lines = lines[2:]
     else:
-      return produce_pages(pages, next_page + [lines[0]], lines[1:], log)
-  return produce_pages([], [], pages)
+      next_page = next_page + [lines[0]]
+      lines = lines[1:]
+    logger = log
+      
 
 def make_pages(page_no, page):
   def make_page(page, with_header = True):
