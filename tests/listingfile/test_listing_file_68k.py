@@ -77,29 +77,29 @@ def check_page_header_stub(page_no, page, logger = False):
   
 def test_reconstruct_lost_pages_with(text):
   pages = listingfile.listing_file_68k.reconstruct_lost_pages(17, [LineStub(l) for l in text])
-  return ["".join([l.text() for l in p]) for p in pages]
+  return [":".join(["".join([l.text() for l in v]) for v in p.values()]) for p in pages]
 
 class TestFunction_reconstruct_lost_pages(unittest.TestCase):
 
   def test_examples(self):
     original_check_page_header = listingfile.listing_file_68k.check_page_header
     listingfile.listing_file_68k.check_page_header = check_page_header_stub
-    self.assertEqual(test_reconstruct_lost_pages_with(""), [""])
-    self.assertEqual(test_reconstruct_lost_pages_with("x"), ["x"])
-    self.assertEqual(test_reconstruct_lost_pages_with("xab"), ["x", "ab"])
-    self.assertEqual(test_reconstruct_lost_pages_with("a"), ["a"])
-    self.assertEqual(test_reconstruct_lost_pages_with("ab"), ["ab"])
-    self.assertEqual(test_reconstruct_lost_pages_with("aba"), ["aba"])
-    self.assertEqual(test_reconstruct_lost_pages_with("abab"), ["ab", "ab"])
-    self.assertEqual(test_reconstruct_lost_pages_with("abxab"), ["abx", "ab"])
-    self.assertEqual(test_reconstruct_lost_pages_with("abxabx"), ["abx", "abx"])
-    self.assertEqual(test_reconstruct_lost_pages_with("abxababx"), ["abx", "ab", "abx"])
-    self.assertEqual(test_reconstruct_lost_pages_with("abac"), ["ab", "ac"])
-    self.assertEqual(test_reconstruct_lost_pages_with("abxac"), ["abx", "ac"])
-    self.assertEqual(test_reconstruct_lost_pages_with("abxacx"), ["abx", "acx"])
-    self.assertEqual(test_reconstruct_lost_pages_with("abxacabx"), ["abx", "ac", "abx"])
-    self.assertEqual(test_reconstruct_lost_pages_with("abxabacx"), ["abx", "ab", "acx"])
-    self.assertEqual(test_reconstruct_lost_pages_with("abxacacx"), ["abx", "ac", "acx"])
+    self.assertEqual(test_reconstruct_lost_pages_with(""), [":"])
+    self.assertEqual(test_reconstruct_lost_pages_with("x"), [":x"])
+    self.assertEqual(test_reconstruct_lost_pages_with("xab"), [":x", "ab:"])
+    self.assertEqual(test_reconstruct_lost_pages_with("a"), [":a"])
+    self.assertEqual(test_reconstruct_lost_pages_with("ab"), ["ab:"])
+    self.assertEqual(test_reconstruct_lost_pages_with("aba"), ["ab:a"])
+    self.assertEqual(test_reconstruct_lost_pages_with("abab"), ["ab:", "ab:"])
+    self.assertEqual(test_reconstruct_lost_pages_with("abxab"), ["ab:x", "ab:"])
+    self.assertEqual(test_reconstruct_lost_pages_with("abxabx"), ["ab:x", "ab:x"])
+    self.assertEqual(test_reconstruct_lost_pages_with("abxababx"), ["ab:x", "ab:", "ab:x"])
+    self.assertEqual(test_reconstruct_lost_pages_with("abac"), ["ab:", "ac:"])
+    self.assertEqual(test_reconstruct_lost_pages_with("abxac"), ["ab:x", "ac:"])
+    self.assertEqual(test_reconstruct_lost_pages_with("abxacx"), ["ab:x", "ac:x"])
+    self.assertEqual(test_reconstruct_lost_pages_with("abxacabx"), ["ab:x", "ac:", "ab:x"])
+    self.assertEqual(test_reconstruct_lost_pages_with("abxabacx"), ["ab:x", "ab:", "ac:x"])
+    self.assertEqual(test_reconstruct_lost_pages_with("abxacacx"), ["ab:x", "ac:", "ac:x"])
     listingfile.listing_file_68k.check_page_header = original_check_page_header
 
   def test_warning_messages(self):

@@ -35,23 +35,23 @@ def reconstruct_lost_pages(page_no, lines):
   class NoLogging:
     def warning(self):
       pass
+  at_first_line = lambda lines, no_of_lines = len(lines) : len(lines) == no_of_lines
   pages = []
-  next_page = []
-  logger = NoLogging
+  next_page = {"header" : [], "content" : []}
   while True:
     # This is a recursive algorithm. As recursion it is much easyier to understand. But Python does
-    # not support recursion. Therefore it must be a while loop.
+    # not support recursion. Therefore it must be implemented by a while loop.
     if not(lines):
       return pages + [next_page]
-    if check_page_header(page_no, lines, NoLogging):
-      logger.warning("Reconstructing pages after page {}, which were not introduced by the form feed symbol.".format(page_no))
-      pages = pages + ([next_page] if next_page else [])
-      next_page = lines[:2]
+    if check_page_header(page_no, lines, log if at_first_line(lines) else NoLogging):
+      if not(at_first_line(lines)):
+        log.warning("Reconstructing pages after page {}, which were not introduced by the form feed symbol.".format(page_no))
+        pages = pages + [next_page]
+      next_page = { "header" : lines[0:2], "content" : [] }
       lines = lines[2:]
     else:
-      next_page = next_page + [lines[0]]
+      next_page["content"] = next_page["content"] + [lines[0]]
       lines = lines[1:]
-    logger = log
       
 
 def make_pages(page_no, page):
