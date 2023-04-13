@@ -71,7 +71,7 @@ class TestFunction_check_page_header(unittest.TestCase):
 def check_page_header_stub(page_no, page, logger = False):
   if len(page)<2:
     return False
-  if (page[0].text() != "a") or (page[1].text() != "b"):
+  if (page[0].text() != "a") or (not(page[1].text() in ["b", "c"])):
     return False
   return True
   
@@ -84,7 +84,7 @@ class TestFunction_reconstruct_lost_pages(unittest.TestCase):
   def test_examples(self):
     original_check_page_header = listingfile.listing_file_68k.check_page_header
     listingfile.listing_file_68k.check_page_header = check_page_header_stub
-    self.assertEqual(test_reconstruct_lost_pages_with(""), [])
+    self.assertEqual(test_reconstruct_lost_pages_with(""), [""])
     self.assertEqual(test_reconstruct_lost_pages_with("x"), ["x"])
     self.assertEqual(test_reconstruct_lost_pages_with("xab"), ["x", "ab"])
     self.assertEqual(test_reconstruct_lost_pages_with("a"), ["a"])
@@ -94,6 +94,12 @@ class TestFunction_reconstruct_lost_pages(unittest.TestCase):
     self.assertEqual(test_reconstruct_lost_pages_with("abxab"), ["abx", "ab"])
     self.assertEqual(test_reconstruct_lost_pages_with("abxabx"), ["abx", "abx"])
     self.assertEqual(test_reconstruct_lost_pages_with("abxababx"), ["abx", "ab", "abx"])
+    self.assertEqual(test_reconstruct_lost_pages_with("abac"), ["ab", "ac"])
+    self.assertEqual(test_reconstruct_lost_pages_with("abxac"), ["abx", "ac"])
+    self.assertEqual(test_reconstruct_lost_pages_with("abxacx"), ["abx", "acx"])
+    self.assertEqual(test_reconstruct_lost_pages_with("abxacabx"), ["abx", "ac", "abx"])
+    self.assertEqual(test_reconstruct_lost_pages_with("abxabacx"), ["abx", "ab", "acx"])
+    self.assertEqual(test_reconstruct_lost_pages_with("abxacacx"), ["abx", "ac", "acx"])
     listingfile.listing_file_68k.check_page_header = original_check_page_header
 
   def test_warning_messages(self):
@@ -220,11 +226,18 @@ class SAT_Tests(unittest.TestCase):
       pages = listingfile.printed_file.create_pages_and_lines(input.read())
       all_pages = []
       for page_no, page in zip(itertools.count(), pages):
+        print("----------------------------------------------------")
+        x = listingfile.listing_file_68k.make_pages(page_no, page)
+        for y in x:
+          print(listingfile.printed_file.lines_text((y["header"])))
         all_pages.extend(listingfile.listing_file_68k.make_pages(page_no, page))
       lines = listingfile.listing_file_68k.pages_as_lines(all_pages)
       for line in lines:
+        #print("Header:")
+        #print(listingfile.printed_file.lines_text(line.page_header))
+        #print("Line:")
+        #print(line.text())
         self.assertEqual(expected_lines[line.content.line_no], line.text())
-      #  print(expected_line)
-      #  print(line.text())
-      #lines = listingfile.listing_file_68k.remove_undesired_line_breaks(lines)
-#       print(lines_to_string(line))
+      lines = listingfile.listing_file_68k.remove_undesired_line_breaks(lines)
+      #for line in lines:
+      #  print(lines_to_string(line))
