@@ -68,17 +68,28 @@ def pages_as_lines(pages):
     result.extend(list(map(lambda line : Line(page_no, page["header"], line), page["content"])))
   return result
 
-def remove_undesired_line_breaks(page_content, line_length=132):
+def remove_undesired_line_breaks(lines, line_length=132):
   # This behaviour is probably incomplete. It is unclear, how line breaks are introduced. We give our best to
   # identify and eliminate them. In case of problems, this function is a source of errors and must be improved.
   result = []
   lines_before = []
-  for line in page_content + [None]:
-    is_line_continuation = (not(lines_before)
-             or ( len(lines_before[-1].text())==line_length and line and line.text() and line.text()[0] != " "))
-    if is_line_continuation:
+  for line in lines + [None]:
+    is_full_line = line and line.text() and len(line.text()) == line_length
+    is_continuation = line and line.text() and line.text()[0]!=" "
+    if line and not(lines_before) and not(is_full_line):
+      result.append([line])
+    elif not(lines_before) and is_full_line:
       lines_before.append(line)
-    else:
+    elif lines_before and is_continuation and not(is_full_line):
+      result.append(lines_before + [line])
+      lines_before = []
+    elif lines_before and is_continuation and is_full_line:
+      lines_before.append(line)
+    elif lines_before and not(is_continuation) and line and line.text():
       result.append(lines_before)
-      lines_before = [line]
+      result.append([line])
+      lines_before = []
+    elif line == None and lines_before:
+      result.append(lines_before)
   return result
+      
