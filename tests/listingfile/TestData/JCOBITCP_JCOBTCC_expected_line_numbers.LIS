@@ -1,3 +1,4 @@
+1:
 4:
 5:    1 	--HEADER-FORMAT-IS
 6:    2 	--  [2.5]
@@ -7,6 +8,7 @@
 10:    6 	
 11:   56 	--END-OF-TEST-STATUS
 12:   57 	
+13:
 16:
 17:   58 	--MODULE-RELATIONS-ARE
 18:   59 	--END-OF-MODULE-RELATIONS
@@ -27,6 +29,7 @@
 33:  224 	    GSYFWACP_FCC_System_Waits.Test_In_Progress := FALSE;
 34:  225 	  end if;
 35:  226 	
+36:
 39:
 40:  227 	end JCOBTCC_BIT_Test_Controller;
 41:
@@ -85,12 +88,14 @@
 94:
 95:Line 96
 96:     006A  4239 *0000000               CLR.B       LAST_TEST_FA.L..ADA$JCOBITCP_CL1_BIT_CONTROL$.LAST_TEST_FA
-00:
+97:
+100:
 101:     0070  6000 02B6                   BRA.W       ENDIF_8
 102:                                   ELSE_15:
 103:
 104:Line 98
 105:     0074  1D79 *0000000 FFFF          MOVE.B      LAST_TEST_FA.L..ADA$JCOBITCP_CL1_BIT_CONTROL$.LAST_TEST_FA,-1(A6)..CPU_FAILURE$PA
+106:
 109:
 110:
 111:RAMETER_TEMP27
@@ -133,6 +138,7 @@
 148:
 149:
 150:
+151:
 154:
 155:COMMAND QUALIFIERS
 156:
@@ -178,3 +184,4 @@
 196:  CPU Time:		 00:00:00.28	(48857 Lines/Minute)
 197:  Elapsed Time:		 00:00:00.36
 198:  Compilation Complete
+199:

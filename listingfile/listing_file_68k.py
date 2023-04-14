@@ -12,7 +12,7 @@ JCOBTCC_BIT_Test_Controller                                     28-Apr-2017 14:5
 """
   if page == []:
     return True
-  if len(page)>60:
+  if len(page)>61:
     log.warning("Page {} has too many lines.".format(page_no))
     return False
   if len(page)<2:
@@ -53,18 +53,6 @@ def reconstruct_lost_pages(page_no, lines):
       next_page["content"] = next_page["content"] + [lines[0]]
       lines = lines[1:]
       
-
-def make_pages(page_no, page):
-  def make_page(page, with_header = True):
-    return {"header" : page[0:2] if with_header else [],
-            "content" : page[2:] if with_header else page}
-  if page == []:
-    return []
-  page_header_present = check_page_header(page_no, page)
-  all_pages = reconstruct_lost_pages(page_no, page)
-  result = [make_page(all_pages[0], page_header_present)]
-  result.extend(list(map(lambda page:make_page(page, with_header=True), all_pages[1:])))
-  return result
 
 class Line:
   def __init__(self, page_no, page_header, line):
