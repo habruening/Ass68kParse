@@ -198,25 +198,21 @@ class SAT_Tests(unittest.TestCase):
   def test_with_real_file(self):
 
     with open("tests/listingfile/TestData/JCOBITCP_JCOBTCC.LIS", "r") as input, \
-         open("tests/listingfile/TestData/JCOBITCP_JCOBTCC_expected_line_numbers.LIS") as expected_lines:
+         open("tests/listingfile/TestData/JCOBITCP_JCOBTCC_expected_line_numbers.LIS") as expected_lines, \
+         open("tests/listingfile/TestData/JCOBITCP_JCOBTCC_expected_assembler_code.LIS") as expected_code:
       expected_lines = iter(expected_lines.read().splitlines())
+      expected_code = iter(expected_code.read().splitlines())
       listingfile.printed_file.log.warnings = []
       pages = listingfile.printed_file.create_pages_and_lines(input.read())
       all_pages = []
       for page_no, page in zip(itertools.count(), pages):
         form_feeded_pages = listingfile.listing_file_68k.reconstruct_lost_pages(page_no, page)
         for page in form_feeded_pages:
-          for line in page["content"]:
-            self.assertEqual(next(expected_lines), "{}:{}".format(line.line_no+1,line.text()))
-      #listingfile.listing_file_68k.pages_as_lines(pages)
-      #  #all_pages.extend(listingfile.listing_file_68k.make_pages(page_no, page))
-      #lines = listingfile.listing_file_68k.pages_as_lines(all_pages)
-      #for line in lines:
-        #print("Header:")
-        #print(listingfile.printed_file.lines_text(line.page_header))
-        #print("Line:")
-        #print(line.text())
-      #  self.assertEqual(expected_lines[line.content.line_no], line.text())
-      #lines = listingfile.listing_file_68k.remove_undesired_line_breaks(lines)
-      #for line in lines:
-      #  print(lines_to_string(line))
+          all_pages.append(page)
+      for page in all_pages:
+        for line in page["content"]:
+          self.assertEqual(next(expected_lines), "{}:{}".format(line.line_no+1,line.text()))
+      all_lines = listingfile.listing_file_68k.pages_as_lines(all_pages)
+      all_lines = listingfile.listing_file_68k.remove_undesired_line_breaks(all_lines)
+      for line in all_lines:
+        self.assertEqual(next(expected_code), "{}:{}".format(",".join([str(l.content.line_no + 1) for l in line]),lines_to_string(line)))
