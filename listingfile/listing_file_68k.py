@@ -5,27 +5,28 @@ log = logging.getLogger(__name__)
 
 import itertools
 
-def check_page_header(page_no, page, logger = log):
+def check_page_header(page_no, page, logger = None):
   """ A correct page header looks this way:
 JCOBTCC_BIT_Test_Controller                                     28-Apr-2017 14:57:43    XD Ada V1.2A-33                     Page   2
 01                                                              28-Apr-2017 14:54:46    JCOBITCP_JCOBTCC.ADA;1                   (1)
 """
+  logger = logger if logger else log
   if page == []:
     return True
   if len(page)>61:
-    log.warning("Page {} has too many lines.".format(page_no))
+    logger.warning("Page {} has too many lines.".format(page_no))
     return False
   if len(page)<2:
-    log.warning("Page {} has no page header.".format(page_no))
+    logger.warning("Page {} has no page header.".format(page_no))
     return False
   if (len(page[0].text()) != 132) or (len(page[1].text()) != 132):
-    log.warning("Page {} has an incorrect page header width.".format(page_no))
+    logger.warning("Page {} has an incorrect page header width.".format(page_no))
     return False
   if (page[0].text()[0] == " " or not(page[0].text()[124:].startswith("Page "))):
-    log.warning("Page {} has an incorrect page header line 1.".format(page_no))
+    logger.warning("Page {} has an incorrect page header line 1.".format(page_no))
     return False
   if (page[1].text()[0] == " " or (page[1].text()[-1] != ")")):
-    log.warning("Page {} has an incorrect page header line 2.".format(page_no))
+    logger.warning("Page {} has an incorrect page header line 2.".format(page_no))
     return False
   return True
 
@@ -55,9 +56,10 @@ def reconstruct_lost_pages(page_no, lines):
       
 
 class Line:
-  def __init__(self, page_no, page_header, line):
+  def __init__(self, page_no, page_header, page_content, line):
     self.page_no = page_no
     self.page_header = page_header
+    self.page_content = page_content
     self.content = line
   def text(self):
     return self.content.text()
@@ -65,7 +67,7 @@ class Line:
 def pages_as_lines(pages):
   result = []
   for page_no, page in zip(itertools.count(), pages):
-    result.extend(list(map(lambda line : Line(page_no, page["header"], line), page["content"])))
+    result.extend(list(map(lambda line : Line(page_no, page["header"], page["content"], line), page["content"])))
   return result
 
 def remove_undesired_line_breaks(lines, line_length=132):
