@@ -93,3 +93,14 @@ def remove_undesired_line_breaks(lines, line_length=132):
       result.append(lines_before)
   return result
       
+def open_file(filename):
+  with open(filename, "r") as input:
+    pages = printed_file.create_pages_and_lines(input.read())
+    all_pages = []
+    for page_no, page in zip(itertools.count(), pages):
+      form_feeded_pages = reconstruct_lost_pages(page_no, page)
+      for page in form_feeded_pages:
+        all_pages.append(page)
+    all_lines = pages_as_lines(all_pages)
+    all_lines = remove_undesired_line_breaks(all_lines)
+  return all_lines

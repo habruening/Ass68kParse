@@ -195,6 +195,13 @@ class Testpages_as_lines(unittest.TestCase):
     
 class SAT_Tests(unittest.TestCase):
 
+  def test_open_file(self):
+    all_lines = listingfile.listing_file_68k.open_file("tests/listingfile/TestData/JCOBITCP_JCOBTCC.LIS")
+    with open("tests/listingfile/TestData/JCOBITCP_JCOBTCC_expected_assembler_code.LIS") as expected_code:
+      expected_code = iter(expected_code.read().splitlines())
+      for line in all_lines:
+        self.assertEqual(next(expected_code), "{}:{}".format(",".join([str(l.content.line_no + 1) for l in line]),lines_to_string(line)))
+
   def test_with_real_file(self):
 
     with open("tests/listingfile/TestData/JCOBITCP_JCOBTCC.LIS", "r") as input, \
