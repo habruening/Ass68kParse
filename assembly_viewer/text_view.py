@@ -24,7 +24,7 @@ textview = Gtk.TextView()
 textbuffer = textview.get_buffer()
 textview.modify_font(Pango.FontDescription("mono"))
 textview.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0, 0, 0, 0.04))
-ifile = open("tests/listingfile/TestData/JCOBITCP_JCOBTCC.LIS").read().replace("\f"," ")
+ifile = open("tests/listingfile/TestData/TFSSTOAP_TFSGCIA.LIS").read().replace("\f"," ")
 text = format_as_block.TextAsBlock(ifile, 132)
 textbuffer.set_text(text.text)
 scrolledwindow.add(textview)
@@ -34,7 +34,7 @@ ptag = textbuffer.create_tag("white_bg", background="white")
 selection = []
 pselection = False
 
-all_lines = listing_file_68k.open_file("tests/listingfile/TestData/JCOBITCP_JCOBTCC.LIS")
+all_lines = listing_file_68k.open_file("tests/listingfile/TestData/TFSSTOAP_TFSGCIA.LIS")
 selected_line = 0
 
 def select_line():
@@ -50,7 +50,7 @@ def select_line():
   for sl in selection:
     textbuffer.remove_tag(tag, sl[0], sl[1])
   def subline_to_selection(sl):
-    return (textbuffer.get_iter_at_offset(text.translator.source_to_target(sl.content.from_to[0])), textbuffer.get_iter_at_offset(text.translator.source_to_target(sl.content.from_to[1])))
+    return (textbuffer.get_iter_at_offset(text.translator.source_to_target(sl.raw.from_to[0])), textbuffer.get_iter_at_offset(text.translator.source_to_target(sl.raw.from_to[1])))
   selection = [(subline_to_selection(sl)) for sl in all_lines[selected_line]]
   for sl in selection:
     textbuffer.remove_tag(ptag, sl[0], sl[1])
@@ -63,12 +63,12 @@ def on_key_press_event(window, event):
   if keyname == "Down":
     while (selected_line < len(all_lines) - 1):
       selected_line = selected_line + 1
-      if all_lines[selected_line][0].content.from_to[1] - all_lines[selected_line][0].content.from_to[0]:
+      if all_lines[selected_line][0].raw.from_to[1] - all_lines[selected_line][0].raw.from_to[0]:
         break
   if keyname == "Up":
     while 0 < selected_line:
       selected_line = selected_line - 1
-      if all_lines[selected_line][0].content.from_to[1] - all_lines[selected_line][0].content.from_to[0]:
+      if all_lines[selected_line][0].raw.from_to[1] - all_lines[selected_line][0].raw.from_to[0]:
         break
   select_line()
   textbuffer.place_cursor(selection[0][0])
@@ -81,7 +81,7 @@ def on_cursor_changed(a, b):
     selected_line = 0
     while(True):
       for sl in all_lines[selected_line]:
-        if cursor_position < sl.content.from_to[1]:
+        if cursor_position < sl.raw.from_to[1]:
           return selected_line
       selected_line = selected_line + 1
   selected_line = find_subline()

@@ -60,9 +60,9 @@ class Line:
     self.page_no = page_no
     self.page_header = page_header
     self.page_content = page_content
-    self.content = line
+    self.raw = line
   def text(self):
-    return self.content.text()
+    return self.raw.text()
 
 def pages_as_lines(pages):
   result = []

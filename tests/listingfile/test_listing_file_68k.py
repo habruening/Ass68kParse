@@ -161,7 +161,7 @@ def test_pages_as_lines_with(headers, pages):
     map(lambda header, page : {"header" : header,
                                     "content" : list(map(lambda line : LineStub(line), page))},
                     headers, pages))
-  return ["{}:{}:{}".format(line.page_no,line.page_header,line.content.text()) for line in lines]
+  return ["{}:{}:{}".format(line.page_no,line.page_header,line.raw.text()) for line in lines]
 
 class Testpages_as_lines(unittest.TestCase):
 
@@ -200,7 +200,7 @@ class SAT_Tests(unittest.TestCase):
     with open("tests/listingfile/TestData/JCOBITCP_JCOBTCC_expected_assembler_code.LIS") as expected_code:
       expected_code = iter(expected_code.read().splitlines())
       for line in all_lines:
-        self.assertEqual(next(expected_code), "{}:{}".format(",".join([str(l.content.line_no + 1) for l in line]),lines_to_string(line)))
+        self.assertEqual(next(expected_code), "{}:{}".format(",".join([str(l.raw.line_no + 1) for l in line]),lines_to_string(line)))
 
   def test_with_real_file(self):
 
@@ -222,4 +222,4 @@ class SAT_Tests(unittest.TestCase):
       all_lines = listingfile.listing_file_68k.pages_as_lines(all_pages)
       all_lines = listingfile.listing_file_68k.remove_undesired_line_breaks(all_lines)
       for line in all_lines:
-        self.assertEqual(next(expected_code), "{}:{}".format(",".join([str(l.content.line_no + 1) for l in line]),lines_to_string(line)))
+        self.assertEqual(next(expected_code), "{}:{}".format(",".join([str(l.raw.line_no + 1) for l in line]),lines_to_string(line)))
