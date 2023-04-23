@@ -16,7 +16,7 @@ listingfile.printed_file.log = LoggerStub()
 class TestClass_Line_Methods(unittest.TestCase):
   def test_all(self):
     line = listingfile.printed_file.Line(17, (4, 8), "0123456789" )
-    self.assertEqual(line.text(), "4567")
+    self.assertEqual(str(line), "4567")
     self.assertEqual(line.line_no, 17)
 
 def test_lines_text_with(file, lines, with_line_breaks):
@@ -330,14 +330,14 @@ class TestFunction_split_lines(unittest.TestCase):
 class TestFunction_create_pages_and_lines(unittest.TestCase):
   def test_constructor(self):
     pages = listingfile.printed_file.create_pages_and_lines("\f\n1\n2\f3\f4\f5\f\f6")
-    self.assertEqual(pages[0][0].text(), "")
-    self.assertEqual(pages[1][0].text(), "1")
-    self.assertEqual(pages[1][1].text(), "2")
-    self.assertEqual(pages[2][0].text(), "3")
-    self.assertEqual(pages[3][0].text(), "4")
-    self.assertEqual(pages[4][0].text(), "5")
-    self.assertEqual(pages[5][0].text(), "")
-    self.assertEqual(pages[6][0].text(), "6")
+    self.assertEqual(str(pages[0][0]), "")
+    self.assertEqual(str(pages[1][0]), "1")
+    self.assertEqual(str(pages[1][1]), "2")
+    self.assertEqual(str(pages[2][0]), "3")
+    self.assertEqual(str(pages[3][0]), "4")
+    self.assertEqual(str(pages[4][0]), "5")
+    self.assertEqual(str(pages[5][0]), "")
+    self.assertEqual(str(pages[6][0]), "6")
 
   def test_all(self):
     c = ["\f", "\n", "\r", "1", "a", " "]
@@ -348,8 +348,8 @@ class TestFunction_create_pages_and_lines(unittest.TestCase):
         for line in page:
           self.assertEqual(line.line_no, line_no)
           line_no = line_no + 1
-          self.assertEqual(example[line.from_to[0]:line.from_to[1]], line.text())
-      self.assertEqual("".join(["".join([l.text() for l in p]) for p in pages]),
+          self.assertEqual(example[line.from_to[0]:line.from_to[1]], str(line))
+      self.assertEqual("".join(["".join([str(l) for l in p]) for p in pages]),
                        example.replace("\n","").replace("\r", "").replace("\f", ""))
     
   def test_line_numbering(self):
@@ -359,7 +359,7 @@ class TestFunction_create_pages_and_lines(unittest.TestCase):
       expected = iter(expected.read().splitlines())
       for p in pages:
         for l in p:
-          self.assertEqual(next(expected), "{}: {}".format(l.line_no+1, l.text()))
+          self.assertEqual(next(expected), "{}: {}".format(l.line_no+1, str(l)))
       with self.assertRaises(StopIteration):
         next(expected)
 
@@ -386,4 +386,4 @@ class TestFunction_create_pages_and_lines(unittest.TestCase):
       for page_no in range(0, 7):
         expected_file_name = "tests/listingfile/TestData/JCOBITCP_JCOBTCC_expected_page_{}.LIS".format(page_no+1)
         with open(expected_file_name, "r") as expected:
-          self.assertEqual("\n".join([line.text() for line in pages[page_no]]), expected.read())
+          self.assertEqual("\n".join([str(line) for line in pages[page_no]]), expected.read())

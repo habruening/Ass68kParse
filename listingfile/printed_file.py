@@ -16,11 +16,11 @@ class Line:
     self.line_no = line_no  # The line number is not checked.
     self.from_to = from_to
     self.file = file
-  def text(self):
+  def __str__(self):
     return self.file[self.from_to[0]:self.from_to[1]]
   
 def lines_text(lines, with_line_breaks = True):
-  return ("\n" if with_line_breaks else "").join([line.text() for line in lines])
+  return ("\n" if with_line_breaks else "").join([str(line) for line in lines])
     
 def find_first_of(text, values):
   """find_first_of cannot be be called with "" in values """

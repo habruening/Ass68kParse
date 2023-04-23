@@ -16,11 +16,11 @@ listingfile.listing_file_68k.log = LoggerStub()
 class LineStub:
   def __init__(self, text):
     self.line = text
-  def text(self):
+  def __str__(self):
     return self.line
   
 def lines_to_string(lines):
-  return "".join([line.text() for line in lines])
+  return "".join([str(line) for line in lines])
 
 def create_page_stub(text):
   return list(map(lambda x:LineStub(x), text.splitlines()))
@@ -71,13 +71,13 @@ class TestFunction_check_page_header(unittest.TestCase):
 def check_page_header_stub(page_no, page, logger = False):
   if len(page)<2:
     return False
-  if (page[0].text() != "a") or (not(page[1].text() in ["b", "c"])):
+  if (str(page[0]) != "a") or (not(str(page[1]) in ["b", "c"])):
     return False
   return True
   
 def test_reconstruct_lost_pages_with(text):
   pages = listingfile.listing_file_68k.reconstruct_lost_pages(17, [LineStub(l) for l in text])
-  return [":".join(["".join([l.text() for l in v]) for v in p.values()]) for p in pages]
+  return [":".join(["".join([str(l) for l in v]) for v in p.values()]) for p in pages]
 
 class TestFunction_reconstruct_lost_pages(unittest.TestCase):
 
@@ -161,7 +161,7 @@ def test_pages_as_lines_with(headers, pages):
     map(lambda header, page : {"header" : header,
                                     "content" : list(map(lambda line : LineStub(line), page))},
                     headers, pages))
-  return ["{}:{}:{}".format(line.page_no,line.page_header,line.raw.text()) for line in lines]
+  return ["{}:{}:{}".format(line.page_no,line.page_header,str(line.raw)) for line in lines]
 
 class Testpages_as_lines(unittest.TestCase):
 
@@ -218,7 +218,7 @@ class SAT_Tests(unittest.TestCase):
           all_pages.append(page)
       for page in all_pages:
         for line in page["content"]:
-          self.assertEqual(next(expected_lines), "{}:{}".format(line.line_no+1,line.text()))
+          self.assertEqual(next(expected_lines), "{}:{}".format(line.line_no+1,str(line)))
       all_lines = listingfile.listing_file_68k.pages_as_lines(all_pages)
       all_lines = listingfile.listing_file_68k.remove_undesired_line_breaks(all_lines)
       for line in all_lines:

@@ -19,13 +19,13 @@ JCOBTCC_BIT_Test_Controller                                     28-Apr-2017 14:5
   if len(page)<2:
     logger.warning("Page {} has no page header.".format(page_no))
     return False
-  if (len(page[0].text()) != 132) or (len(page[1].text()) != 132):
+  if (len(str(page[0])) != 132) or (len(str(page[1])) != 132):
     logger.warning("Page {} has an incorrect page header width.".format(page_no))
     return False
-  if (page[0].text()[0] == " " or not(page[0].text()[124:].startswith("Page "))):
+  if (str(page[0])[0] == " " or not(str(page[0])[124:].startswith("Page "))):
     logger.warning("Page {} has an incorrect page header line 1.".format(page_no))
     return False
-  if (page[1].text()[0] == " " or (page[1].text()[-1] != ")")):
+  if (str(page[1])[0] == " " or (str(page[1])[-1] != ")")):
     logger.warning("Page {} has an incorrect page header line 2.".format(page_no))
     return False
   return True
@@ -61,8 +61,8 @@ class Line:
     self.page_header = page_header
     self.page_content = page_content
     self.raw = line
-  def text(self):
-    return self.raw.text()
+  def __str__(self):
+    return str(self.raw)
 
 def pages_as_lines(pages):
   result = []
@@ -76,8 +76,8 @@ def remove_undesired_line_breaks(lines, line_length=132):
   result = []
   lines_before = []
   for line in lines + [None]:
-    is_full_line = line and line.text() and len(line.text()) == line_length
-    is_continuation = line and line.text() and line.text()[0]!=" "
+    is_full_line = line and str(line) and len(str(line)) == line_length
+    is_continuation = line and str(line) and str(line)[0]!=" "
     if line and not(lines_before) and not(is_full_line):
       result.append([line])
     elif not(lines_before) and is_full_line:
@@ -87,7 +87,7 @@ def remove_undesired_line_breaks(lines, line_length=132):
       lines_before = []
     elif lines_before and is_continuation and is_full_line:
       lines_before.append(line)
-    elif lines_before and not(is_continuation) and line and line.text():
+    elif lines_before and not(is_continuation) and line and str(line):
       result.append(lines_before)
       result.append([line])
       lines_before = []
