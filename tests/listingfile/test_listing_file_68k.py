@@ -18,9 +18,6 @@ class LineStub:
     self.line = text
   def __str__(self):
     return self.line
-  
-def lines_to_string(lines):
-  return "".join([str(line) for line in lines])
 
 def create_page_stub(text):
   return list(map(lambda x:LineStub(x), text.splitlines()))
@@ -122,8 +119,8 @@ class TestFunction_reconstruct_lost_pages(unittest.TestCase):
 
 def test_remove_undesired_line_breaks_with(page):
   page = create_page_stub(page)
-  lines = listingfile.listing_file_68k.remove_undesired_line_breaks(page, 3)
-  return list(map(lines_to_string, lines))
+  content_lines = listingfile.listing_file_68k.remove_undesired_line_breaks(page, 3)
+  return list(map(str, content_lines))
 
 class TestFunction_remove_undesired_line_breaks(unittest.TestCase):
 
@@ -200,7 +197,7 @@ class SAT_Tests(unittest.TestCase):
     with open("tests/listingfile/TestData/JCOBITCP_JCOBTCC_expected_assembler_code.LIS") as expected_code:
       expected_code = iter(expected_code.read().splitlines())
       for line in all_lines:
-        self.assertEqual(next(expected_code), "{}:{}".format(",".join([str(l.raw.line_no + 1) for l in line]),lines_to_string(line)))
+        self.assertEqual(next(expected_code), "{}:{}".format(",".join([str(l.raw.line_no + 1) for l in line.lines]),str(line)))
 
   def test_with_real_file(self):
 
@@ -222,4 +219,4 @@ class SAT_Tests(unittest.TestCase):
       all_lines = listingfile.listing_file_68k.pages_as_lines(all_pages)
       all_lines = listingfile.listing_file_68k.remove_undesired_line_breaks(all_lines)
       for line in all_lines:
-        self.assertEqual(next(expected_code), "{}:{}".format(",".join([str(l.raw.line_no + 1) for l in line]),lines_to_string(line)))
+        self.assertEqual(next(expected_code), "{}:{}".format(",".join([str(l.raw.line_no + 1) for l in line.lines]),str(line)))

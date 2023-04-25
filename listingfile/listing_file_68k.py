@@ -70,29 +70,38 @@ def pages_as_lines(pages):
     result.extend(list(map(lambda line : Line(page_no, page["header"], page["content"], line), page["content"])))
   return result
 
+class ContentLine:
+  def __init__(self, lines):
+    self.lines = lines
+  def __bool__(self):
+    return bool(self.lines)
+  def __str__(self):
+    return "".join([str(line) for line in self.lines])
+
 def remove_undesired_line_breaks(lines, line_length=132):
   # This behaviour is probably incomplete. It is unclear, how line breaks are introduced. We give our best to
   # identify and eliminate them. In case of problems, this function is a source of errors and must be improved.
   result = []
-  lines_before = []
+  lines_before = [] #Es funktioniet. Aber man sollte besser ganz am Ende das ContentLine Object erzeugen.
   for line in lines + [None]:
     is_full_line = line and str(line) and len(str(line)) == line_length
     is_continuation = line and str(line) and str(line)[0]!=" "
     if line and not(lines_before) and not(is_full_line):
-      result.append([line])
+      result.append(ContentLine([line]))
     elif not(lines_before) and is_full_line:
       lines_before.append(line)
     elif lines_before and is_continuation and not(is_full_line):
-      result.append(lines_before + [line])
+      lines_before.append(line)
+      result.append(ContentLine(lines_before))
       lines_before = []
     elif lines_before and is_continuation and is_full_line:
       lines_before.append(line)
     elif lines_before and not(is_continuation) and line and str(line):
-      result.append(lines_before)
-      result.append([line])
+      result.append(ContentLine(lines_before))
+      result.append(ContentLine([line]))
       lines_before = []
     elif line == None and lines_before:
-      result.append(lines_before)
+      result.append(ContentLine(lines_before))
   return result
       
 def open_file(filename):
