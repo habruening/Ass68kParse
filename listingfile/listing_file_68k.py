@@ -84,24 +84,22 @@ def remove_undesired_line_breaks(lines, line_length=132):
   # identify and eliminate them. In case of problems, this function is a source of errors and must be improved.
   result = []
   lines_before = NoLine()
-  for line in lines + [None]:
+  for line in lines:
     is_full_line = line and str(line) and len(str(line)) == line_length
-    is_continuation = line and str(line) and str(line)[0]!=" "
+    is_continuation = lines_before and line and str(line) and str(line)[0]!=" "
     if line and not(lines_before) and not(is_full_line):
       result.append(line)
-    elif not(lines_before) and is_full_line:
-      lines_before = line
-    elif lines_before and is_continuation:
+    elif is_continuation or (not(lines_before) and is_full_line):
       lines_before = lines_before + line
       if not(is_full_line):
         result.append(lines_before)
         lines_before = NoLine()
-    elif lines_before and not(is_continuation) and line and str(line):
+    elif lines_before and line and str(line):
       result.append(lines_before)
       result.append(line)
       lines_before = NoLine()
-    elif line == None and lines_before:
-      result.append(lines_before)
+  if lines_before:
+    result.append(lines_before)
   return result
       
 def open_file(filename):
