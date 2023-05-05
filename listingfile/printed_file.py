@@ -11,17 +11,30 @@ log = logging.getLogger(__name__)
 # line breaks, we want to ensure, that we at any time know what was the original. This is important
 # for good status and error messages and also for GUI applications that show us the original file.
 
-class Line:
+class NoText:
+  def __add__(self, text):
+    return text
+  
+class Text:
   def __init__(self, line_no, from_to, file):
     self.line_no = line_no  # The line number is not checked.
     self.from_to = from_to
     self.file = file
+  def __add__(self, text):
+    return MultiText([self, text])
   def __str__(self):
     return self.file[self.from_to[0]:self.from_to[1]]
-  
-def lines_text(lines, with_line_breaks = True):
-  return ("\n" if with_line_breaks else "").join([str(line) for line in lines])
     
+class MultiText:
+  def __init__(self, lines):
+    self.lines = lines
+  def __add__(self, text):
+    return MultiText(self.lines + [text])
+  def __bool__(self):
+    return bool(self.lines)
+  def __str__(self):
+    return "".join([str(line) for line in self.lines])
+      
 def find_first_of(text, values):
   """find_first_of cannot be be called with "" in values """
   best_match = False
@@ -58,7 +71,7 @@ def create_pages_and_lines(file):
   for page in split_pages(file):
     new_page = []
     for line in split_lines(file[page[0]:page[1]]):
-      line = Line(line_no, (page[0]+line[0], page[0]+line[1]), file)
+      line = Text(line_no, (page[0]+line[0], page[0]+line[1]), file)
       line_no = line_no + 1
       new_page.append(line)
     result.append(new_page)

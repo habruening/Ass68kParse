@@ -13,30 +13,31 @@ class LoggerStub():
 
 listingfile.printed_file.log = LoggerStub()
 
-class TestClass_Line_Methods(unittest.TestCase):
+def test_Text_with(file, lines):
+  text = listingfile.printed_file.NoText()
+  for line in lines:
+    text = text + listingfile.printed_file.Text(17, line, file)
+  return str(text)
+
+class TestClass_MultiText_Methods(unittest.TestCase):
   def test_all(self):
-    line = listingfile.printed_file.Line(17, (4, 8), "0123456789" )
+    line = listingfile.printed_file.Text(17, (4, 8), "0123456789" )
     self.assertEqual(str(line), "4567")
     self.assertEqual(line.line_no, 17)
 
-def test_lines_text_with(file, lines, with_line_breaks):
-  lines = map(lambda from_to : listingfile.printed_file.Line(17, from_to, file), lines)
-  return listingfile.printed_file.lines_text(lines, with_line_breaks)
 
-class TestFunction_lines_text(unittest.TestCase):
-
-  def test_all(self):
-    self.assertEqual(test_lines_text_with("", [(0,0)], with_line_breaks = False), "")
-    self.assertEqual(test_lines_text_with("", [(0,1)], with_line_breaks = False), "")
-    self.assertEqual(test_lines_text_with("x", [(0,0)], with_line_breaks = False), "")
-    self.assertEqual(test_lines_text_with("x", [(0,1)], with_line_breaks = False), "x")
-    self.assertEqual(test_lines_text_with("x", [(3,5)], with_line_breaks = False), "")
-    self.assertEqual(test_lines_text_with("abcdefghij", [(0,1)], with_line_breaks = False), "a")
-    self.assertEqual(test_lines_text_with("abcdefghij", [(0,2)], with_line_breaks = False), "ab")
-    self.assertEqual(test_lines_text_with("abcdefghij", [(2,4)], with_line_breaks = False), "cd")
-    self.assertEqual(test_lines_text_with("abcdefghij", [(4,8)], with_line_breaks = False), "efgh")
-    self.assertEqual(test_lines_text_with("abcdefghij", [(0,3), (4,6)], with_line_breaks = False), "abcef")
-    self.assertEqual(test_lines_text_with("abcdefghij", [(0,1), (2,3), (6,7), (9,10), (4,5)], with_line_breaks = False), "acgje")
+  def test_str_operator(self):
+    self.assertEqual(test_Text_with("", [(0,0)]), "")
+    self.assertEqual(test_Text_with("", [(0,1)]), "")
+    self.assertEqual(test_Text_with("x", [(0,0)]), "")
+    self.assertEqual(test_Text_with("x", [(0,1)]), "x")
+    self.assertEqual(test_Text_with("x", [(3,5)]), "")
+    self.assertEqual(test_Text_with("abcdefghij", [(0,1)]), "a")
+    self.assertEqual(test_Text_with("abcdefghij", [(0,2)]), "ab")
+    self.assertEqual(test_Text_with("abcdefghij", [(2,4)]), "cd")
+    self.assertEqual(test_Text_with("abcdefghij", [(4,8)]), "efgh")
+    self.assertEqual(test_Text_with("abcdefghij", [(0,3), (4,6)]), "abcef")
+    self.assertEqual(test_Text_with("abcdefghij", [(0,1), (2,3), (6,7), (9,10), (4,5)]), "acgje")
 
 class TestFunction_find_first_of(unittest.TestCase):
 

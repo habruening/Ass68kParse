@@ -16,6 +16,8 @@ listingfile.listing_file_68k.log = LoggerStub()
 class LineStub:
   def __init__(self, text):
     self.line = text
+  def __add__(self, text):
+    return LineStub(self.line + text.line)
   def __str__(self):
     return self.line
 
@@ -197,7 +199,12 @@ class SAT_Tests(unittest.TestCase):
     with open("tests/listingfile/TestData/JCOBITCP_JCOBTCC_expected_assembler_code.LIS") as expected_code:
       expected_code = iter(expected_code.read().splitlines())
       for line in all_lines:
-        self.assertEqual(next(expected_code), "{}:{}".format(",".join([str(l.raw.line_no + 1) for l in line.lines]),str(line)))
+        line_numbers = ""
+        if type(line) == listingfile.listing_file_68k.Line:
+          line_numbers = line.raw.line_no + 1
+        if type(line) == listingfile.printed_file.MultiText:
+          line_numbers = ",".join([str(l.raw.line_no + 1) for l in line.lines])
+        self.assertEqual(next(expected_code), "{}:{}".format(line_numbers,str(line)))
 
   def test_with_real_file(self):
 
@@ -219,4 +226,8 @@ class SAT_Tests(unittest.TestCase):
       all_lines = listingfile.listing_file_68k.pages_as_lines(all_pages)
       all_lines = listingfile.listing_file_68k.remove_undesired_line_breaks(all_lines)
       for line in all_lines:
-        self.assertEqual(next(expected_code), "{}:{}".format(",".join([str(l.raw.line_no + 1) for l in line.lines]),str(line)))
+        if type(line) == listingfile.listing_file_68k.Line:
+          line_numbers = line.raw.line_no + 1
+        else:
+          line_numbers = ",".join([str(l.raw.line_no + 1) for l in line.lines])
+        self.assertEqual(next(expected_code), "{}:{}".format(line_numbers,str(line)))

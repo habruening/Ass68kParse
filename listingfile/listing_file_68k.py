@@ -54,54 +54,55 @@ def reconstruct_lost_pages(page_no, lines):
       next_page["content"] = next_page["content"] + [lines[0]]
       lines = lines[1:]
       
-
+class NoLine:
+  def __add__(self, line):
+    return line
+  def __bool__(self):
+    return False
+  
 class Line:
   def __init__(self, page_no, page_header, page_content, line):
     self.page_no = page_no
     self.page_header = page_header
     self.page_content = page_content
     self.raw = line
+  def __add__(self, line):
+    return printed_file.MultiText([self, line])
   def __str__(self):
     return str(self.raw)
 
 def pages_as_lines(pages):
   result = []
   for page_no, page in zip(itertools.count(), pages):
-    result.extend(list(map(lambda line : Line(page_no, page["header"], page["content"], line), page["content"])))
+    def make_line(line):
+      return Line(page_no, page["header"], page["content"], line) 
+    result.extend(list(map(lambda line : make_line(line), page["content"])))
   return result
-
-class ContentLine:
-  def __init__(self, lines):
-    self.lines = lines
-  def __bool__(self):
-    return bool(self.lines)
-  def __str__(self):
-    return "".join([str(line) for line in self.lines])
 
 def remove_undesired_line_breaks(lines, line_length=132):
   # This behaviour is probably incomplete. It is unclear, how line breaks are introduced. We give our best to
   # identify and eliminate them. In case of problems, this function is a source of errors and must be improved.
   result = []
-  lines_before = [] #Es funktioniet. Aber man sollte besser ganz am Ende das ContentLine Object erzeugen.
+  lines_before = NoLine()
   for line in lines + [None]:
     is_full_line = line and str(line) and len(str(line)) == line_length
     is_continuation = line and str(line) and str(line)[0]!=" "
     if line and not(lines_before) and not(is_full_line):
-      result.append(ContentLine([line]))
+      result.append(line)
     elif not(lines_before) and is_full_line:
-      lines_before.append(line)
+      lines_before = line
     elif lines_before and is_continuation and not(is_full_line):
-      lines_before.append(line)
-      result.append(ContentLine(lines_before))
-      lines_before = []
+      lines_before = lines_before + line
+      result.append(lines_before)
+      lines_before = NoLine()
     elif lines_before and is_continuation and is_full_line:
-      lines_before.append(line)
+      lines_before = lines_before + line
     elif lines_before and not(is_continuation) and line and str(line):
-      result.append(ContentLine(lines_before))
-      result.append(ContentLine([line]))
-      lines_before = []
+      result.append(lines_before)
+      result.append(line)
+      lines_before = NoLine()
     elif line == None and lines_before:
-      result.append(ContentLine(lines_before))
+      result.append(lines_before)
   return result
       
 def open_file(filename):
