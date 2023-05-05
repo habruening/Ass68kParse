@@ -91,12 +91,11 @@ def remove_undesired_line_breaks(lines, line_length=132):
       result.append(line)
     elif not(lines_before) and is_full_line:
       lines_before = line
-    elif lines_before and is_continuation and not(is_full_line):
+    elif lines_before and is_continuation:
       lines_before = lines_before + line
-      result.append(lines_before)
-      lines_before = NoLine()
-    elif lines_before and is_continuation and is_full_line:
-      lines_before = lines_before + line
+      if not(is_full_line):
+        result.append(lines_before)
+        lines_before = NoLine()
     elif lines_before and not(is_continuation) and line and str(line):
       result.append(lines_before)
       result.append(line)
