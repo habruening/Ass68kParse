@@ -52,10 +52,7 @@ class ContentSelector:
       textbuffer.remove_tag(self.tags["line"], selection[0], selection[1])
       textbuffer.remove_tag(self.tags["ass_line"], selection[0], selection[1])
     selected_line = all_lines[self.line_number]
-    if type(selected_line) == listing_file_68k.Line:
-      selected_content = [selected_line]
-    elif type(selected_line) == printed_file.MultiText:
-      selected_content = selected_line.lines
+    selected_content = selected_line.lines
     selected_text = [tuple(map( lambda from_to : text.translator.source_to_target(from_to), content.raw.from_to))
                      for content in selected_content]
     self.line_selections = [tuple(map( lambda from_to : textbuffer.get_iter_at_offset(from_to), selection))
@@ -72,10 +69,7 @@ class ContentSelector:
     if self.page_selection:
       textbuffer.remove_tag(self.tags["page"], self.page_selection[0], self.page_selection[1])
     selected_line = all_lines[self.line_number]
-    if type(selected_line) == listing_file_68k.Line:
-      selected_page = selected_line.page_header + selected_line.page_content
-    elif type(selected_line) == printed_file.MultiText:
-      selected_page = selected_line.lines[0].page_header + selected_line.lines[0].page_content
+    selected_page = selected_line.lines[0].page_header + selected_line.lines[0].page_content
     selected_content = (selected_page[0].from_to[0], selected_page[-1].from_to[1])
     selected_text = tuple(map( lambda from_to : text.translator.source_to_target(from_to), selected_content))
     self.page_selection = tuple(map( lambda from_to : textbuffer.get_iter_at_offset(from_to), selected_text))
@@ -106,13 +100,9 @@ def on_cursor_changed(a, b):
   def find_subline():
     selected_line = 0
     while(True):
-      if type(all_lines[selected_line]) == listing_file_68k.Line:
-        if cursor_position < all_lines[selected_line].raw.from_to[1]:
+      for sl in all_lines[selected_line].lines:
+        if cursor_position < sl.raw.from_to[1]:
           return selected_line
-      elif type(all_lines[selected_line]) == printed_file.MultiText:
-        for sl in all_lines[selected_line].lines:
-          if cursor_position < sl.raw.from_to[1]:
-            return selected_line
       selected_line = selected_line + 1
   selection.line_number = find_subline()
   selection.select_page()

@@ -70,6 +70,9 @@ class Line:
     return printed_file.MultiText([self, line])
   def __str__(self):
     return str(self.raw)
+  @property
+  def lines(self):
+    return [self]
 
 def pages_as_lines(pages):
   result = []
