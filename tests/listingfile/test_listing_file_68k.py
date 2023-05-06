@@ -136,6 +136,8 @@ class TestFunction_remove_undesired_line_breaks(unittest.TestCase):
     self.assertEqual(test_remove_undesired_line_breaks_with("1"), ["1"])
     self.assertEqual(test_remove_undesired_line_breaks_with("1 2"), ["1 2"])
     self.assertEqual(test_remove_undesired_line_breaks_with("1 2\n 3"), ["1 2", " 3"])
+    self.assertEqual(test_remove_undesired_line_breaks_with("1 2\n 34"), ["1 2", " 34"])
+    self.assertEqual(test_remove_undesired_line_breaks_with("1 2\n 34\n 5"), ["1 2", " 34", " 5"])
     self.assertEqual(test_remove_undesired_line_breaks_with("1 2\n\n 3"), ["1 2", " 3"])
     self.assertEqual(test_remove_undesired_line_breaks_with("1 2\n3"), ["1 23"])
     self.assertEqual(test_remove_undesired_line_breaks_with("1  \n2"), ["1  2"])
