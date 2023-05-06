@@ -8,6 +8,7 @@ sys.path.append(str(root))
 from listingfile import listing_file_68k
 from listingfile import printed_file
 from assembly_viewer import format_as_block
+from listingfile import assembly_code_68k
 
 import gi
 
@@ -37,7 +38,8 @@ class ContentSelector:
     self.line_number = 0
     self.line_selections = []
     self.page_selection = False
-    self.tags = {"line" : textbuffer.create_tag("orange_bg", background="orange"),
+    self.tags = {"line" : textbuffer.create_tag("yellow_bg", background="yellow"),
+                 "ass_line" : textbuffer.create_tag("orange_bg", background="orange") ,
                  "page" : textbuffer.create_tag("white_bg", background="white") }
 
   def apply_tag(self, tag, selection):
@@ -48,6 +50,7 @@ class ContentSelector:
   def select_line(self):
     for selection in self.line_selections:
       textbuffer.remove_tag(self.tags["line"], selection[0], selection[1])
+      textbuffer.remove_tag(self.tags["ass_line"], selection[0], selection[1])
     selected_line = all_lines[self.line_number]
     if type(selected_line) == listing_file_68k.Line:
       selected_content = [selected_line]
@@ -57,8 +60,13 @@ class ContentSelector:
                      for content in selected_content]
     self.line_selections = [tuple(map( lambda from_to : textbuffer.get_iter_at_offset(from_to), selection))
                      for selection in selected_text]
+    line_type = "line"
+    if assembly_code_68k.decode_instruction(str(all_lines[self.line_number])):
+      line_type = "ass_line"
+    elif assembly_code_68k.decode_label(str(all_lines[self.line_number])):
+      line_type = "ass_line"
     for selection in self.line_selections:
-      self.apply_tag("line", selection)
+      self.apply_tag(line_type, selection)
 
   def select_page(self):
     if self.page_selection:
@@ -101,10 +109,10 @@ def on_cursor_changed(a, b):
       if type(all_lines[selected_line]) == listing_file_68k.Line:
         if cursor_position < all_lines[selected_line].raw.from_to[1]:
           return selected_line
-        elif type(all_lines[selected_line]) == printed_file.MultiText:
-          for sl in all_lines[selected_line].lines:
-            if cursor_position < sl.raw.from_to[1]:
-              return selected_line
+      elif type(all_lines[selected_line]) == printed_file.MultiText:
+        for sl in all_lines[selected_line].lines:
+          if cursor_position < sl.raw.from_to[1]:
+            return selected_line
       selected_line = selected_line + 1
   selection.line_number = find_subline()
   selection.select_page()
