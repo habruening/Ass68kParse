@@ -85,19 +85,21 @@ def remove_undesired_line_breaks(lines, line_length=132):
   result = []
   lines_before = NoLine()
   for line in lines:
-    is_full_line = line and str(line) and len(str(line)) == line_length
+    if not(str(line)):
+      continue
+    is_full_line = len(str(line)) == line_length
     is_continuation = lines_before and line and str(line) and str(line)[0]!=" "
-    if line and not(lines_before) and not(is_full_line):
+    if not(lines_before) and not(is_full_line):
       result.append(line)
     elif is_continuation or (not(lines_before) and is_full_line):
       lines_before = lines_before + line
       if not(is_full_line):
         result.append(lines_before)
         lines_before = NoLine()
-    elif lines_before and line and str(line):
+    elif lines_before and str(line):
       result.append(lines_before)
-      result.append(line)
       lines_before = NoLine()
+      result.append(line)
   if lines_before:
     result.append(lines_before)
   return result
