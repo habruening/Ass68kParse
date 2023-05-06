@@ -6,6 +6,7 @@ file = Path(__file__).resolve()
 parent, root = file.parent, file.parents[1]
 sys.path.append(str(root))
 from listingfile import listing_file_68k
+from listingfile import printed_file
 from assembly_viewer import format_as_block
 
 import gi
@@ -24,69 +25,91 @@ textview = Gtk.TextView()
 textbuffer = textview.get_buffer()
 textview.modify_font(Pango.FontDescription("mono"))
 textview.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0, 0, 0, 0.04))
-ifile = open("tests/listingfile/TestData/TFSSTOAP_TFSGCIA.LIS").read().replace("\f"," ")
+ifile = open("tests/listingfile/TestData/JCOBITCP_JCOBTCC.LIS").read().replace("\f"," ")
 text = format_as_block.TextAsBlock(ifile, 132)
 textbuffer.set_text(text.text)
 scrolledwindow.add(textview)
 
-tag = textbuffer.create_tag("orange_bg", background="orange")
-ptag = textbuffer.create_tag("white_bg", background="white")
-selection = []
-pselection = False
+all_lines = listing_file_68k.open_file("tests/listingfile/TestData/JCOBITCP_JCOBTCC.LIS")
 
-all_lines = listing_file_68k.open_file("tests/listingfile/TestData/TFSSTOAP_TFSGCIA.LIS")
-selected_line = 0
+class ContentSelector:
+  def __init__(self):
+    self.line_number = 0
+    self.line_selections = []
+    self.page_selection = False
+    self.tags = {"line" : textbuffer.create_tag("orange_bg", background="orange"),
+                 "page" : textbuffer.create_tag("white_bg", background="white") }
 
-def select_line():
-  global selected_line
-  global selection
-  global pselection
-  if pselection:
-    textbuffer.remove_tag(ptag, pselection[0], pselection[1])
-  pselection = (all_lines[selected_line][0].page_header[0].from_to[0], all_lines[selected_line][0].page_content[-1].from_to[1])
-  pselection = (text.translator.source_to_target(pselection[0]), text.translator.source_to_target(pselection[1]))
-  pselection = (textbuffer.get_iter_at_offset(pselection[0]), textbuffer.get_iter_at_offset(pselection[1]))
-  textbuffer.apply_tag(ptag, pselection[0], pselection[1])
-  for sl in selection:
-    textbuffer.remove_tag(tag, sl[0], sl[1])
-  def subline_to_selection(sl):
-    return (textbuffer.get_iter_at_offset(text.translator.source_to_target(sl.raw.from_to[0])), textbuffer.get_iter_at_offset(text.translator.source_to_target(sl.raw.from_to[1])))
-  selection = [(subline_to_selection(sl)) for sl in all_lines[selected_line]]
-  for sl in selection:
-    textbuffer.remove_tag(ptag, sl[0], sl[1])
-    textbuffer.apply_tag(tag, sl[0], sl[1])    
+  def apply_tag(self, tag, selection):
+    for i in self.tags.values():
+      textbuffer.remove_tag(i, selection[0], selection[1])
+    textbuffer.apply_tag(self.tags[tag], selection[0], selection[1])
 
+  def select_line(self):
+    for selection in self.line_selections:
+      textbuffer.remove_tag(self.tags["line"], selection[0], selection[1])
+    selected_line = all_lines[self.line_number]
+    if type(selected_line) == listing_file_68k.Line:
+      selected_content = [selected_line]
+    elif type(selected_line) == printed_file.MultiText:
+      selected_content = selected_line.lines
+    selected_text = [tuple(map( lambda from_to : text.translator.source_to_target(from_to), content.raw.from_to))
+                     for content in selected_content]
+    self.line_selections = [tuple(map( lambda from_to : textbuffer.get_iter_at_offset(from_to), selection))
+                     for selection in selected_text]
+    for selection in self.line_selections:
+      self.apply_tag("line", selection)
+
+  def select_page(self):
+    if self.page_selection:
+      textbuffer.remove_tag(self.tags["page"], self.page_selection[0], self.page_selection[1])
+    selected_line = all_lines[self.line_number]
+    if type(selected_line) == listing_file_68k.Line:
+      selected_page = selected_line.page_header + selected_line.page_content
+    elif type(selected_line) == printed_file.MultiText:
+      selected_page = selected_line.lines[0].page_header + selected_line.lines[0].page_content
+    selected_content = (selected_page[0].from_to[0], selected_page[-1].from_to[1])
+    selected_text = tuple(map( lambda from_to : text.translator.source_to_target(from_to), selected_content))
+    self.page_selection = tuple(map( lambda from_to : textbuffer.get_iter_at_offset(from_to), selected_text))
+    self.apply_tag("page", self.page_selection)
+
+selection = ContentSelector()
+    
 def on_key_press_event(window, event):
-  global selected_line
   global selection
   keyname = Gdk.keyval_name(event.keyval)
   if keyname == "Down":
-    while (selected_line < len(all_lines) - 1):
-      selected_line = selected_line + 1
-      if all_lines[selected_line][0].raw.from_to[1] - all_lines[selected_line][0].raw.from_to[0]:
+    while (selection.line_number < len(all_lines) - 1):
+      selection.line_number = selection.line_number + 1
+      if str(all_lines[selection.line_number]):
         break
   if keyname == "Up":
-    while 0 < selected_line:
-      selected_line = selected_line - 1
-      if all_lines[selected_line][0].raw.from_to[1] - all_lines[selected_line][0].raw.from_to[0]:
+    while 0 < selection.line_number:
+      selection.line_number = selection.line_number - 1
+      if str(all_lines[selection.line_number]):
         break
-  select_line()
-  textbuffer.place_cursor(selection[0][0])
+  selection.select_page()
+  selection.select_line()
+  textbuffer.place_cursor(selection.line_selections[0][0])
   return True
 
 def on_cursor_changed(a, b):
-  global selected_line
   cursor_position = text.translator.target_to_source(textbuffer.props.cursor_position)
   def find_subline():
     selected_line = 0
     while(True):
-      for sl in all_lines[selected_line]:
-        if cursor_position < sl.raw.from_to[1]:
+      if type(all_lines[selected_line]) == listing_file_68k.Line:
+        if cursor_position < all_lines[selected_line].raw.from_to[1]:
           return selected_line
+        elif type(all_lines[selected_line]) == printed_file.MultiText:
+          for sl in all_lines[selected_line].lines:
+            if cursor_position < sl.raw.from_to[1]:
+              return selected_line
       selected_line = selected_line + 1
-  selected_line = find_subline()
-  select_line()
-
+  selection.line_number = find_subline()
+  selection.select_page()
+  selection.select_line()
+  
 win.connect("key-press-event",on_key_press_event)
 textbuffer.connect("notify::cursor-position",on_cursor_changed)
 

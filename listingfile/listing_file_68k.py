@@ -82,6 +82,8 @@ def pages_as_lines(pages):
 def remove_undesired_line_breaks(lines, line_length=132):
   # This behaviour is probably incomplete. It is unclear, how line breaks are introduced. We give our best to
   # identify and eliminate them. In case of problems, this function is a source of errors and must be improved.
+  # This code is hard to understand. A better more intuitive parsing approach would be be more appropriate.
+  # But the code is well tested and works as expected.
   result = []
   lines_before = NoLine()
   for line in lines:

@@ -12,12 +12,17 @@ class Translator():
     self.mapping = [Translator.create_mapping(0, 0)]
 
   def add_mapping(self, source, target):
-    self.mapping.append(Translator.create_mapping(self.mapping[-1]["source"] + source, self.mapping[-1]["target"] + target))
+    new_source_offset = self.mapping[-1]["source"] + source
+    new_target_offset = self.mapping[-1]["target"] + target
+    self.mapping.append(Translator.create_mapping(new_source_offset, new_target_offset))
 
-  def add_mappings(self, translator):
-    mappings = [Translator.create_mapping(mapping["source"] + self.mapping[-1]["source"],
-                                          mapping["target"] + self.mapping[-1]["target"]) for mapping in translator.mapping]
-    self.mapping.extend(mappings[1:])
+  def add_mappings(self, mappings):
+    after_source = self.mapping[-1]["source"]
+    after_target = self.mapping[-1]["target"]
+    for mapping in mappings.mapping[1:]:
+      new_source_offset = mapping["source"] + after_source
+      new_target_offset = mapping["target"] + after_target
+      self.mapping.append(Translator.create_mapping(new_source_offset, new_target_offset))
 
   def source_to_target(self, source):
     i = 0

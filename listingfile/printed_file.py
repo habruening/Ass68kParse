@@ -30,8 +30,6 @@ class MultiText:
     self.lines = lines
   def __add__(self, text):
     return MultiText(self.lines + [text])
-  def __bool__(self):
-    return bool(self.lines)
   def __str__(self):
     return "".join([str(line) for line in self.lines])
       
