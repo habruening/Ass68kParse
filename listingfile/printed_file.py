@@ -28,6 +28,10 @@ def make_valid_text_access(text, accessor):
     if accessor.step:
       raise IndexError
     accessor_start, accessor_stop = accessor.start, accessor.stop
+    if not accessor_start:
+      accessor_start = 0
+    if not accessor_stop:
+      accessor_stop = len(text)
     if accessor_start < 0:
       accessor_start = len(text) + accessor_start
     accessor_start = max(accessor_start, 0)
@@ -70,8 +74,8 @@ class MultiText:
     for line in self.lines:
       if valid_access[0] < len(line) and valid_access[0] < valid_access[1]:
         snip = (valid_access[0], min(len(line), valid_access[1]))
-        result = result + line[valid_access[0]:valid_access[1]]
-        valid_access = (0, valid_access[1] - snip[1] - snip[0])
+        result = result + line[snip[0]:snip[1]]
+        valid_access = (0, valid_access[1] - len(line))
       else:
         valid_access = (valid_access[0] - len(line), valid_access[1] - len(line))
     return result

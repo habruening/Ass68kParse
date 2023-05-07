@@ -33,6 +33,13 @@ scrolledwindow.add(textview)
 
 all_lines = listing_file_68k.open_file("tests/listingfile/TestData/JCOBITCP_JCOBTCC.LIS")
 
+def make_highlighter(lines):
+    on_display = [tuple(map( lambda from_to : text.translator.source_to_target(from_to), content.raw.from_to))
+                     for content in lines]
+    selections = [tuple(map( lambda from_to : textbuffer.get_iter_at_offset(from_to), selection))
+                     for selection in on_display]
+    return selections
+
 class ContentSelector:
   def __init__(self):
     self.line_number = 0
@@ -48,27 +55,22 @@ class ContentSelector:
       textbuffer.remove_tag(i, selection[0], selection[1])
     textbuffer.apply_tag(self.tags[tag], selection[0], selection[1])
 
+
   def select_line(self):
     for selection in self.line_selections:
       textbuffer.remove_tag(self.tags["line"], selection[0], selection[1])
       textbuffer.remove_tag(self.tags["ass_line"], selection[0], selection[1])
-    selected_line = all_lines[self.line_number]
-    selected_content = selected_line.lines
-    selected_text = [tuple(map( lambda from_to : text.translator.source_to_target(from_to), content.raw.from_to))
-                     for content in selected_content]
-    self.line_selections = [tuple(map( lambda from_to : textbuffer.get_iter_at_offset(from_to), selection))
-                     for selection in selected_text]
+    self.line_selections = make_highlighter(all_lines[self.line_number].lines)
     for selection in self.line_selections:
       self.apply_tag("line", selection)
-    if assembly_code_68k.decode_instruction(str(all_lines[self.line_number])):
-      line_type = "ass_line"
+    if assembly_code_68k.decode_instruction(all_lines[self.line_number]):
+      instruction = assembly_code_68k.decode_instruction(all_lines[self.line_number])
+      self.syntax_selections = make_highlighter(instruction.address[0] + instruction.opcode[0] + instruction.mnemonic[0] + instruction.arguments[0])
+      for selection in self.syntax_selections:
+        self.apply_tag("ass_line", selection)
     elif assembly_code_68k.decode_label(all_lines[self.line_number]):
       label = assembly_code_68k.decode_label(all_lines[self.line_number])
-      label = label.name
-      label_text = [tuple(map( lambda from_to : text.translator.source_to_target(from_to), content.raw.from_to))
-                     for content in label]
-      self.syntax_selections = [tuple(map( lambda from_to : textbuffer.get_iter_at_offset(from_to), selection))
-                     for selection in label_text]
+      self.syntax_selections = make_highlighter(label.name)
       for selection in self.syntax_selections:
         self.apply_tag("ass_line", selection)
 

@@ -218,7 +218,8 @@ class TestClass_MultiText_Methods(unittest.TestCase):
     self.assertEqual(str(text[-10:2]), "01")
     self.assertEqual(str(text[-2:-1]), "1")
     self.assertFalse(text[-1:-2])
-
+    text = test_Text_with("0123456789ABCDEFGHIKLM", [(0,4), (4,8), (8,12)])
+    self.assertEqual(str(text[5:10]), "56789")
 
 
 class TestFunction_find_first_of(unittest.TestCase):
