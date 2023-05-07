@@ -14,17 +14,47 @@ log = logging.getLogger(__name__)
 class NoText:
   def __add__(self, text):
     return text
+  def __bool__(self):
+    return False
   
+def make_valid_text_access(text, accessor):
+  if type(accessor) == int:
+    if (accessor < -len(text)) or (len(text) <= accessor): 
+      raise IndexError
+    if accessor < 0:
+      accessor = len(text) + accessor
+    return (accessor, accessor+1)
+  if type(accessor)==slice:
+    if accessor.step:
+      raise IndexError
+    accessor_start, accessor_stop = accessor.start, accessor.stop
+    if accessor_start < 0:
+      accessor_start = len(text) + accessor_start
+    accessor_start = max(accessor_start, 0)
+    accessor_start = min(accessor_start, len(text))
+    if accessor_stop < 0:
+      accessor_stop = len(text) + accessor_stop
+    accessor_stop = max(accessor_stop, 0)
+    accessor_stop = min(accessor_stop, len(text))
+    return (accessor_start, accessor_stop)
+  raise IndexError
+     
 class Text:
   def __init__(self, line_no, from_to, file):
     self.line_no = line_no  # The line number is not checked.
-    self.from_to = from_to
+    self.from_to = tuple(map(lambda x : min(len(file), x), from_to))
     self.file = file
   def __add__(self, text):
     return MultiText([self, text])
   def __str__(self):
     return self.file[self.from_to[0]:self.from_to[1]]
-    
+  def __len__(self):
+    return self.from_to[1] - self.from_to[0]
+  def __getitem__(self, accessor):
+    valid_access = make_valid_text_access(self, accessor)
+    valid_access = (valid_access[0] + self.from_to[0], valid_access[1] + self.from_to[0])
+    return Text(self.line_no, valid_access, self.file)
+
 class MultiText:
   def __init__(self, lines):
     self.lines = lines
@@ -32,6 +62,19 @@ class MultiText:
     return MultiText(self.lines + [text])
   def __str__(self):
     return "".join([str(line) for line in self.lines])
+  def __len__(self):
+    return sum([len(line) for line in self.lines])
+  def __getitem__(self, accessor):
+    valid_access = make_valid_text_access(self, accessor)
+    result = NoText()
+    for line in self.lines:
+      if valid_access[0] < len(line) and valid_access[0] < valid_access[1]:
+        snip = (valid_access[0], min(len(line), valid_access[1]))
+        result = result + line[valid_access[0]:valid_access[1]]
+        valid_access = (0, valid_access[1] - snip[1] - snip[0])
+      else:
+        valid_access = (valid_access[0] - len(line), valid_access[1] - len(line))
+    return result
       
 def find_first_of(text, values):
   """find_first_of cannot be be called with "" in values """

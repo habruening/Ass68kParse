@@ -38,6 +38,7 @@ class ContentSelector:
     self.line_number = 0
     self.line_selections = []
     self.page_selection = False
+    self.syntax_selections = []
     self.tags = {"line" : textbuffer.create_tag("yellow_bg", background="yellow"),
                  "ass_line" : textbuffer.create_tag("orange_bg", background="orange") ,
                  "page" : textbuffer.create_tag("white_bg", background="white") }
@@ -57,13 +58,19 @@ class ContentSelector:
                      for content in selected_content]
     self.line_selections = [tuple(map( lambda from_to : textbuffer.get_iter_at_offset(from_to), selection))
                      for selection in selected_text]
-    line_type = "line"
+    for selection in self.line_selections:
+      self.apply_tag("line", selection)
     if assembly_code_68k.decode_instruction(str(all_lines[self.line_number])):
       line_type = "ass_line"
-    elif assembly_code_68k.decode_label(str(all_lines[self.line_number])):
-      line_type = "ass_line"
-    for selection in self.line_selections:
-      self.apply_tag(line_type, selection)
+    elif assembly_code_68k.decode_label(all_lines[self.line_number]):
+      label = assembly_code_68k.decode_label(all_lines[self.line_number])
+      label = label.name
+      label_text = [tuple(map( lambda from_to : text.translator.source_to_target(from_to), content.raw.from_to))
+                     for content in label]
+      self.syntax_selections = [tuple(map( lambda from_to : textbuffer.get_iter_at_offset(from_to), selection))
+                     for selection in label_text]
+      for selection in self.syntax_selections:
+        self.apply_tag("ass_line", selection)
 
   def select_page(self):
     if self.page_selection:

@@ -70,6 +70,8 @@ class Line:
     return printed_file.MultiText([self, line])
   def __str__(self):
     return str(self.raw)
+  def __getitem__(self, accessor):
+    return Line(self.page_no, self.page_header, self.page_content, self.raw[accessor])
   @property
   def lines(self):
     return [self]

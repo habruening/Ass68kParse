@@ -17,7 +17,103 @@ def test_Text_with(file, lines):
   text = listingfile.printed_file.NoText()
   for line in lines:
     text = text + listingfile.printed_file.Text(17, line, file)
-  return str(text)
+  return text
+
+class TestClass_Text_Methods(unittest.TestCase):
+
+  def test_str_operator(self):
+    self.assertEqual(str(listingfile.printed_file.Text(0, (0,0), "")), "")
+    self.assertEqual(str(listingfile.printed_file.Text(0, (0,0), "0123456789")), "")
+    self.assertEqual(str(listingfile.printed_file.Text(0, (0,1), "0123456789")), "0")
+    self.assertEqual(str(listingfile.printed_file.Text(0, (0,3), "0123456789")), "012")
+    self.assertEqual(str(listingfile.printed_file.Text(0, (3,6), "0123456789")), "345")
+    self.assertEqual(str(listingfile.printed_file.Text(0, (6,9), "0123456789")), "678")
+    self.assertEqual(str(listingfile.printed_file.Text(0, (9,9), "0123456789")), "")
+    self.assertEqual(str(listingfile.printed_file.Text(0, (9,10), "0123456789")), "9")
+    self.assertEqual(str(listingfile.printed_file.Text(0, (9,15), "0123456789")), "9")
+
+  def test_len_operator(self):
+    self.assertEqual(len(listingfile.printed_file.Text(0, (0,0), "")), 0)
+    self.assertEqual(len(listingfile.printed_file.Text(0, (0,0), "0123456789")), 0)
+    self.assertEqual(len(listingfile.printed_file.Text(0, (0,1), "0123456789")), 1)
+    self.assertEqual(len(listingfile.printed_file.Text(0, (0,3), "0123456789")), 3)
+    self.assertEqual(len(listingfile.printed_file.Text(0, (3,6), "0123456789")), 3)
+    self.assertEqual(len(listingfile.printed_file.Text(0, (6,9), "0123456789")), 3)
+    self.assertEqual(len(listingfile.printed_file.Text(0, (9,9), "0123456789")), 0)
+    self.assertEqual(len(listingfile.printed_file.Text(0, (9,10), "0123456789")), 1)
+    self.assertEqual(len(listingfile.printed_file.Text(0, (9,15), "0123456789")), 1)
+
+  def test_getitem_operator_element(self):
+    text = listingfile.printed_file.Text(0, (0,3), "0123456789")
+    self.assertEqual(str(text[0]), "0")
+    self.assertEqual(str(text[1]), "1")
+    self.assertEqual(str(text[2]), "2")
+    self.assertEqual(str(text[-1]), "2")
+    self.assertEqual(str(text[-2]), "1")
+    self.assertEqual(str(text[-3]), "0")
+    text = listingfile.printed_file.Text(0, (7,10), "0123456789")
+    self.assertEqual(str(text[0]), "7")
+    self.assertEqual(str(text[1]), "8")
+    self.assertEqual(str(text[2]), "9")
+    self.assertEqual(str(text[-1]), "9")
+    self.assertEqual(str(text[-2]), "8")
+    self.assertEqual(str(text[-3]), "7")
+
+
+  def test_getitem_operator_exceptions(self):
+    text = listingfile.printed_file.Text(0, (0,0), "")
+    with self.assertRaises(IndexError):
+      text[0]
+    with self.assertRaises(IndexError):
+      text[1]
+    with self.assertRaises(IndexError):
+      text[-1]
+    text = listingfile.printed_file.Text(0, (0,0), "0123456789")
+    with self.assertRaises(IndexError):
+      text[0]
+    with self.assertRaises(IndexError):
+      text[1]
+    with self.assertRaises(IndexError):
+      text[-1]
+    text = listingfile.printed_file.Text(0, (0,3), "0123456789")
+    text[0]
+    text[1]
+    text[2]
+    text[-1]
+    text[-2]
+    text[-3]
+    with self.assertRaises(IndexError):
+      text[3]
+    with self.assertRaises(IndexError):
+      text[-4]
+    text = listingfile.printed_file.Text(0, (3,6), "0123456789")
+    text[0]
+    text[1]
+    text[2]
+    text[-1]
+    text[-2]
+    text[-3]
+    with self.assertRaises(IndexError):
+      text[3]
+    with self.assertRaises(IndexError):
+      text[-4]
+
+  def test_getitem_operator_slice(self):
+    text = listingfile.printed_file.Text(0, (0,3), "0123456789")
+    self.assertEqual(str(text[0:3]), "012")
+    self.assertEqual(str(text[1:3]), "12")
+    self.assertEqual(str(text[0:5]), "012")
+    self.assertEqual(str(text[0:-1]), "01")
+    self.assertEqual(str(text[0:-2]), "0")
+    self.assertEqual(str(text[0:-3]), "")
+    self.assertEqual(str(text[0:-4]), "")
+    self.assertEqual(str(text[6:10]), "")
+    self.assertEqual(str(text[6:-4]), "")
+    self.assertEqual(str(text[0:-10]), "")
+    self.assertEqual(str(text[0:10]), "012")
+    self.assertEqual(str(text[-10:2]), "01")
+    self.assertEqual(str(text[-2:-1]), "1")
+    self.assertEqual(str(text[-1:-2]), "")
 
 class TestClass_MultiText_Methods(unittest.TestCase):
   def test_all(self):
@@ -25,19 +121,105 @@ class TestClass_MultiText_Methods(unittest.TestCase):
     self.assertEqual(str(line), "4567")
     self.assertEqual(line.line_no, 17)
 
-
   def test_str_operator(self):
-    self.assertEqual(test_Text_with("", [(0,0)]), "")
-    self.assertEqual(test_Text_with("", [(0,1)]), "")
-    self.assertEqual(test_Text_with("x", [(0,0)]), "")
-    self.assertEqual(test_Text_with("x", [(0,1)]), "x")
-    self.assertEqual(test_Text_with("x", [(3,5)]), "")
-    self.assertEqual(test_Text_with("abcdefghij", [(0,1)]), "a")
-    self.assertEqual(test_Text_with("abcdefghij", [(0,2)]), "ab")
-    self.assertEqual(test_Text_with("abcdefghij", [(2,4)]), "cd")
-    self.assertEqual(test_Text_with("abcdefghij", [(4,8)]), "efgh")
-    self.assertEqual(test_Text_with("abcdefghij", [(0,3), (4,6)]), "abcef")
-    self.assertEqual(test_Text_with("abcdefghij", [(0,1), (2,3), (6,7), (9,10), (4,5)]), "acgje")
+    self.assertEqual(str(test_Text_with("", [(0,0)])), "")
+    self.assertEqual(str(test_Text_with("", [(0,1)])), "")
+    self.assertEqual(str(test_Text_with("x", [(0,0)])), "")
+    self.assertEqual(str(test_Text_with("x", [(0,1)])), "x")
+    self.assertEqual(str(test_Text_with("x", [(3,5)])), "")
+    self.assertEqual(str(test_Text_with("abcdefghij", [(0,1)])), "a")
+    self.assertEqual(str(test_Text_with("abcdefghij", [(0,2)])), "ab")
+    self.assertEqual(str(test_Text_with("abcdefghij", [(2,4)])), "cd")
+    self.assertEqual(str(test_Text_with("abcdefghij", [(4,8)])), "efgh")
+    self.assertEqual(str(test_Text_with("abcdefghij", [(0,3), (4,6)])), "abcef")
+    self.assertEqual(str(test_Text_with("abcdefghij", [(0,1), (2,3), (6,7), (9,10), (4,5)])), "acgje")
+
+  def test_len_operator(self):
+    self.assertEqual(len(test_Text_with("", [(0,0)])), 0)
+    self.assertEqual(len(test_Text_with("", [(0,1)])), 0)
+    self.assertEqual(len(test_Text_with("x", [(0,0)])), 0)
+    self.assertEqual(len(test_Text_with("x", [(0,1)])), 1)
+    self.assertEqual(len(test_Text_with("x", [(3,5)])), 0)
+    self.assertEqual(len(test_Text_with("abcdefghij", [(0,1)])), 1)
+    self.assertEqual(len(test_Text_with("abcdefghij", [(0,2)])), 2)
+    self.assertEqual(len(test_Text_with("abcdefghij", [(2,4)])), 2)
+    self.assertEqual(len(test_Text_with("abcdefghij", [(4,8)])), 4)
+    self.assertEqual(len(test_Text_with("abcdefghij", [(0,3), (4,6)])), 5)
+    self.assertEqual(len(test_Text_with("abcdefghij", [(0,1), (2,3), (6,7), (9,10), (4,5)])), 5)
+
+  def test_getitem_operator_element(self):
+    text = test_Text_with("0123456789", [(0,1), (1,3)])
+    self.assertEqual(str(text[0]), "0")
+    self.assertEqual(str(text[1]), "1")
+    self.assertEqual(str(text[2]), "2")
+    self.assertEqual(str(text[-1]), "2")
+    self.assertEqual(str(text[-2]), "1")
+    self.assertEqual(str(text[-3]), "0")
+    text = test_Text_with("0123456789", [(7,9), (9,10)])
+    self.assertEqual(str(text[0]), "7")
+    self.assertEqual(str(text[1]), "8")
+    self.assertEqual(str(text[2]), "9")
+    self.assertEqual(str(text[-1]), "9")
+    self.assertEqual(str(text[-2]), "8")
+    self.assertEqual(str(text[-3]), "7")
+
+
+  def test_getitem_operator_exceptions(self):
+    text = test_Text_with("", [(0,0), (0,0)])
+    with self.assertRaises(IndexError):
+      text[0]
+    with self.assertRaises(IndexError):
+      text[1]
+    with self.assertRaises(IndexError):
+      text[-1]
+    text = test_Text_with("0123456789", [(0,0), (0,0)])
+    with self.assertRaises(IndexError):
+      text[0]
+    with self.assertRaises(IndexError):
+      text[1]
+    with self.assertRaises(IndexError):
+      text[-1]
+    text = test_Text_with("0123456789", [(0,1), (1,3)])
+    text[0]
+    text[1]
+    text[2]
+    text[-1]
+    text[-2]
+    text[-3]
+    with self.assertRaises(IndexError):
+      text[3]
+    with self.assertRaises(IndexError):
+      text[-4]
+    text = test_Text_with("0123456789", [(3,4), (4,5), (5,6)])
+    text[0]
+    text[1]
+    text[2]
+    text[-1]
+    text[-2]
+    text[-3]
+    with self.assertRaises(IndexError):
+      text[3]
+    with self.assertRaises(IndexError):
+      text[-4]
+
+  def test_getitem_operator_slice(self):
+    text = test_Text_with("0123456789", [(0,1), (1,3)])
+    self.assertEqual(str(text[0:3]), "012")
+    self.assertEqual(str(text[1:3]), "12")
+    self.assertEqual(str(text[0:5]), "012")
+    self.assertEqual(str(text[0:-1]), "01")
+    self.assertEqual(str(text[0:-2]), "0")
+    self.assertFalse(text[0:-3])
+    self.assertFalse(text[0:-4])
+    self.assertFalse(text[6:10])
+    self.assertFalse(text[6:-4])
+    self.assertFalse(text[0:-10])
+    self.assertEqual(str(text[0:10]), "012")
+    self.assertEqual(str(text[-10:2]), "01")
+    self.assertEqual(str(text[-2:-1]), "1")
+    self.assertFalse(text[-1:-2])
+
+
 
 class TestFunction_find_first_of(unittest.TestCase):
 
