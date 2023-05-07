@@ -52,7 +52,3 @@ def decode_instruction(line):
   arguments = str(line).rstrip()
   arguments = line[:len(arguments)]
   return Instruction(line, address, opcode, mnemonic, arguments)
-
-print(decode_instruction("     000C  207C *0000000               MOVEA.L     #ADA$TFSSTODP_STORE_HANDLER_$.$DATA,A0"))
-print(decode_label("                                   TFSGCIA_GEN_OF_CLAWS_ID__3901$SECONDARY:"))
-print(decode_label("                                   ELSE_15:"))
