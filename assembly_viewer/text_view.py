@@ -55,7 +55,6 @@ class ContentSelector:
       textbuffer.remove_tag(i, selection[0], selection[1])
     textbuffer.apply_tag(self.tags[tag], selection[0], selection[1])
 
-
   def select_line(self):
     for selection in self.line_selections:
       textbuffer.remove_tag(self.tags["line"], selection[0], selection[1])
@@ -65,7 +64,7 @@ class ContentSelector:
       self.apply_tag("line", selection)
     if assembly_code_68k.decode_instruction(all_lines[self.line_number]):
       instruction = assembly_code_68k.decode_instruction(all_lines[self.line_number])
-      self.syntax_selections = make_highlighter(instruction.address[0] + instruction.opcode[0] + instruction.mnemonic[0] + instruction.arguments[0])
+      self.syntax_selections = make_highlighter(instruction.address + instruction.opcode + instruction.mnemonic + instruction.arguments)
       for selection in self.syntax_selections:
         self.apply_tag("ass_line", selection)
     elif assembly_code_68k.decode_label(all_lines[self.line_number]):
