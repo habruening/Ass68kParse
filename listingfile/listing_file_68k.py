@@ -53,13 +53,7 @@ def reconstruct_lost_pages(page_no, lines):
     else:
       next_page["content"] = next_page["content"] + [lines[0]]
       lines = lines[1:]
-      
-class NoLine:
-  def __add__(self, line):
-    return line
-  def __bool__(self):
-    return False
-  
+       
 class Line:
   def __init__(self, page_no, page_header, page_content, line):
     self.page_no = page_no
@@ -92,7 +86,7 @@ def remove_undesired_line_breaks(lines, line_length=132):
   # This code is hard to understand. A better more intuitive parsing approach would be be more appropriate.
   # But the code is well tested and works as expected.
   result = []
-  lines_before = NoLine()
+  lines_before = printed_file.NoText()
   for line in lines:
     if not(str(line)):
       continue
@@ -104,10 +98,10 @@ def remove_undesired_line_breaks(lines, line_length=132):
       lines_before = lines_before + line
       if not(is_full_line):
         result.append(lines_before)
-        lines_before = NoLine()
+        lines_before = printed_file.NoText()
     elif lines_before:
       result.append(lines_before)
-      lines_before = NoLine()
+      lines_before = printed_file.NoText()
       result.append(line)
   if lines_before:
     result.append(lines_before)
