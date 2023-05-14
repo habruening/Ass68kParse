@@ -30,25 +30,25 @@ def decode_label(line):
 def decode_instruction(line):
   if not(str(line).startswith("     ")):
     return False
-  line = line[5:]
-  if len(line) < 6 or str(line[4:6]) != "  ":
+  parsed_line = line[5:]
+  if len(parsed_line) < 6 or str(parsed_line[4:6]) != "  ":
     return False
   try:
-    int(str(line[:4]), 16)
-    address = line[:4]
+    int(str(parsed_line[:4]), 16)
+    address = parsed_line[:4]
   except ValueError:
     return False
-  line = line[6:]
-  if len(line) < 28:
+  parsed_line = parsed_line[6:]
+  if len(parsed_line) < 28:
     return False
-  opcode = str(line[:28]).rstrip()
-  opcode = line[:28][:len(opcode)]
-  line = line[28:]
-  if len(line) < 12:
+  opcode = str(parsed_line[:28]).rstrip()
+  opcode = parsed_line[:28][:len(opcode)]
+  parsed_line = parsed_line[28:]
+  if len(parsed_line) < 12:
     return False
-  mnemonic = str(line[:12]).rstrip()
-  mnemonic = line[:12][:len(mnemonic)]
-  line = line[12:]
-  arguments = str(line).rstrip()
-  arguments = line[:len(arguments)]
+  mnemonic = str(parsed_line[:12]).rstrip()
+  mnemonic = parsed_line[:12][:len(mnemonic)]
+  parsed_line = parsed_line[12:]
+  arguments = str(parsed_line).rstrip()
+  arguments = parsed_line[:len(arguments)]
   return Instruction(line, address, opcode, mnemonic, arguments)

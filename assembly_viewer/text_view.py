@@ -31,7 +31,32 @@ text = format_as_block.TextAsBlock(ifile, 132)
 textbuffer.set_text(text.text)
 scrolledwindow.add(textview)
 
-all_lines = listing_file_68k.open_file("tests/listingfile/TestData/JCOBITCP_JCOBTCC.LIS")
+all_lines_orig = listing_file_68k.open_file("tests/listingfile/TestData/JCOBITCP_JCOBTCC.LIS")
+
+all_lines = []
+assembler_code = []
+for line in all_lines_orig:
+  if assembly_code_68k.decode_instruction(line):
+    instruction = assembly_code_68k.decode_instruction(line)
+    instruction.lines = line.lines
+    all_lines.append(instruction)
+    assembler_code.append(instruction)
+    instruction.go_to = []
+  elif assembly_code_68k.decode_label(line):
+    label = assembly_code_68k.decode_label(line)
+    label.lines = line.lines
+    all_lines.append(label)
+    assembler_code.append(label)
+    label.come_from = []
+  else:
+    all_lines.append(line)
+
+for label in (l for l in assembler_code if type(l) == assembly_code_68k.Label):
+  for instruction in (i for i in assembler_code if type(i) == assembly_code_68k.Instruction):
+    if(str(label.name) == str(instruction.arguments)):
+      instruction.go_to.append(label)
+      label.come_from.append(instruction)
+  
 
 def make_highlighter(lines):
     on_display = [tuple(map( lambda from_to : text.translator.source_to_target(from_to), content.raw.from_to))
@@ -45,9 +70,9 @@ class ContentSelector:
     self.line_number = 0
     self.line_selections = []
     self.page_selection = False
-    self.syntax_selections = []
     self.tags = {"line" : textbuffer.create_tag("yellow_bg", background="yellow"),
                  "ass_line" : textbuffer.create_tag("orange_bg", background="orange") ,
+                 "branch_line" : textbuffer.create_tag("green_bg", foreground="red", background="white") ,
                  "page" : textbuffer.create_tag("white_bg", background="white") }
 
   def apply_tag(self, tag, selection):
@@ -59,19 +84,31 @@ class ContentSelector:
     for selection in self.line_selections:
       textbuffer.remove_tag(self.tags["line"], selection[0], selection[1])
       textbuffer.remove_tag(self.tags["ass_line"], selection[0], selection[1])
-    self.line_selections = make_highlighter(all_lines[self.line_number].lines)
+      textbuffer.remove_tag(self.tags["branch_line"], selection[0], selection[1])
+    self.line_selections.clear()
+    self.line_selections.extend(make_highlighter(all_lines[self.line_number].lines))
     for selection in self.line_selections:
       self.apply_tag("line", selection)
-    if assembly_code_68k.decode_instruction(all_lines[self.line_number]):
-      instruction = assembly_code_68k.decode_instruction(all_lines[self.line_number])
-      self.syntax_selections = make_highlighter(instruction.address + instruction.opcode + instruction.mnemonic + instruction.arguments)
-      for selection in self.syntax_selections:
+    if type(all_lines[self.line_number]) == assembly_code_68k.Instruction:
+      instruction = all_lines[self.line_number]
+      syntax_selections = make_highlighter(instruction.address + instruction.opcode + instruction.mnemonic + instruction.arguments)
+      self.line_selections.extend(syntax_selections)
+      for selection in syntax_selections:
         self.apply_tag("ass_line", selection)
-    elif assembly_code_68k.decode_label(all_lines[self.line_number]):
-      label = assembly_code_68k.decode_label(all_lines[self.line_number])
-      self.syntax_selections = make_highlighter(label.name)
-      for selection in self.syntax_selections:
+      branch_selections = make_highlighter(list([go_to.name for go_to in instruction.go_to]))
+      for selection in branch_selections:
+        self.apply_tag("branch_line", selection)
+      self.line_selections.extend(branch_selections)
+    elif type(all_lines[self.line_number]) == assembly_code_68k.Label:
+      label = all_lines[self.line_number]
+      syntax_selections = make_highlighter(label.name)
+      self.line_selections.extend(syntax_selections)
+      for selection in syntax_selections:
         self.apply_tag("ass_line", selection)
+      branch_selections = make_highlighter(list([come_from.line for come_from in label.come_from]))
+      for selection in branch_selections:
+        self.apply_tag("branch_line", selection)
+      self.line_selections.extend(branch_selections)
 
   def select_page(self):
     if self.page_selection:
