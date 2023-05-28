@@ -10,6 +10,8 @@ from listingfile import printed_file
 from assembly_viewer import format_as_block
 from listingfile import assembly_code_68k
 
+import assembly_viewer.listing_file_viewer
+
 import gi
 
 gi.require_version("Gtk", "3.0")
@@ -21,18 +23,11 @@ win.set_default_size(1100, 700)
 box = Gtk.Box(spacing=6)
 win.add(box)
 
-scrolledwindow = Gtk.ScrolledWindow()
-scrolledwindow.set_hexpand(True)
-scrolledwindow.set_vexpand(True)
+listing_file_viewer = assembly_viewer.listing_file_viewer.ListingFileViewer()
 
-textview = Gtk.TextView()
-textbuffer = textview.get_buffer()
-textview.modify_font(Pango.FontDescription("mono"))
-textview.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0, 0, 0, 0.04))
 ifile = open("tests/listingfile/TestData/JCOBITCP_JCOBTCC.LIS").read().replace("\f"," ")
 text = format_as_block.TextAsBlock(ifile, 132)
-textbuffer.set_text(text.text)
-scrolledwindow.add(textview)
+listing_file_viewer.textbuffer().set_text(text.text)
 
 all_lines_orig = listing_file_68k.open_file("tests/listingfile/TestData/JCOBITCP_JCOBTCC.LIS")
 
@@ -64,7 +59,7 @@ for label in (l for l in assembler_code if type(l) == assembly_code_68k.Label):
 def make_highlighter(lines):
     on_display = [tuple(map( lambda from_to : text.translator.source_to_target(from_to), content.raw.from_to))
                      for content in lines]
-    selections = [tuple(map( lambda from_to : textbuffer.get_iter_at_offset(from_to), selection))
+    selections = [tuple(map( lambda from_to : listing_file_viewer.pointer_to_position(from_to), selection))
                      for selection in on_display]
     return selections
 
@@ -73,21 +68,21 @@ class ContentSelector:
     self.line_number = 0
     self.line_selections = []
     self.page_selection = False
-    self.tags = {"line" : textbuffer.create_tag("yellow_bg", background="yellow"),
-                 "ass_line" : textbuffer.create_tag("orange_bg", background="orange") ,
-                 "branch_line" : textbuffer.create_tag("green_bg", foreground="red", background="white") ,
-                 "page" : textbuffer.create_tag("white_bg", background="white") }
+    self.tags = {"line" : listing_file_viewer.textbuffer().create_tag("yellow_bg", background="yellow"),
+                 "ass_line" : listing_file_viewer.textbuffer().create_tag("orange_bg", background="orange") ,
+                 "branch_line" : listing_file_viewer.textbuffer().create_tag("green_bg", foreground="red", background="white") ,
+                 "page" : listing_file_viewer.textbuffer().create_tag("white_bg", background="white") }
 
   def apply_tag(self, tag, selection):
     for i in self.tags.values():
-      textbuffer.remove_tag(i, selection[0], selection[1])
-    textbuffer.apply_tag(self.tags[tag], selection[0], selection[1])
+      listing_file_viewer.textbuffer().remove_tag(i, selection[0], selection[1])
+    listing_file_viewer.textbuffer().apply_tag(self.tags[tag], selection[0], selection[1])
 
   def select_line(self):
     for selection in self.line_selections:
-      textbuffer.remove_tag(self.tags["line"], selection[0], selection[1])
-      textbuffer.remove_tag(self.tags["ass_line"], selection[0], selection[1])
-      textbuffer.remove_tag(self.tags["branch_line"], selection[0], selection[1])
+      listing_file_viewer.textbuffer().remove_tag(self.tags["line"], selection[0], selection[1])
+      listing_file_viewer.textbuffer().remove_tag(self.tags["ass_line"], selection[0], selection[1])
+      listing_file_viewer.textbuffer().remove_tag(self.tags["branch_line"], selection[0], selection[1])
     self.line_selections.clear()
     self.line_selections.extend(make_highlighter(all_lines[self.line_number].lines))
     for selection in self.line_selections:
@@ -115,12 +110,12 @@ class ContentSelector:
 
   def select_page(self):
     if self.page_selection:
-      textbuffer.remove_tag(self.tags["page"], self.page_selection[0], self.page_selection[1])
+      listing_file_viewer.textbuffer().remove_tag(self.tags["page"], self.page_selection[0], self.page_selection[1])
     selected_line = all_lines[self.line_number]
     selected_page = selected_line.lines[0].page_header + selected_line.lines[0].page_content
     selected_content = (selected_page[0].from_to[0], selected_page[-1].from_to[1])
     selected_text = tuple(map( lambda from_to : text.translator.source_to_target(from_to), selected_content))
-    self.page_selection = tuple(map( lambda from_to : textbuffer.get_iter_at_offset(from_to), selected_text))
+    self.page_selection = tuple(map( lambda from_to : listing_file_viewer.textbuffer().get_iter_at_offset(from_to), selected_text))
     self.apply_tag("page", self.page_selection)
 
 selection = ContentSelector()
@@ -140,11 +135,11 @@ def on_key_press_event(window, event):
         break
   selection.select_page()
   selection.select_line()
-  textbuffer.place_cursor(selection.line_selections[0][0])
+  listing_file_viewer.textbuffer().place_cursor(selection.line_selections[0][0])
   return True
 
 def on_cursor_changed(a, b):
-  cursor_position = text.translator.target_to_source(textbuffer.props.cursor_position)
+  cursor_position = text.translator.target_to_source(listing_file_viewer.textbuffer().props.cursor_position)
   def find_subline():
     selected_line = 0
     while(True):
@@ -157,9 +152,9 @@ def on_cursor_changed(a, b):
   selection.select_line()
   
 win.connect("key-press-event",on_key_press_event)
-textbuffer.connect("notify::cursor-position",on_cursor_changed)
+listing_file_viewer.textbuffer().connect("notify::cursor-position",on_cursor_changed)
 
-box.pack_start(scrolledwindow, True, True, 0)
+box.pack_start(listing_file_viewer.widget(), True, True, 0)
 
 html = "<h1>This is HTML content</h1><p>I am displaying this in python</p"
 
