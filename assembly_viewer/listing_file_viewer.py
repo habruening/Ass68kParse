@@ -4,11 +4,13 @@ from gi.repository import Gtk, Pango, Gdk
 gi.require_version("Gtk", "3.0")
 
 
+from assembly_viewer import format_as_block
+
 
 class ListingFileViewer():
 
 
-  def __init__(self):
+  def __init__(self, listing_file):
     self.scrolledwindow = Gtk.ScrolledWindow()
     self.scrolledwindow.set_hexpand(True)
     self.scrolledwindow.set_vexpand(True)
@@ -16,6 +18,10 @@ class ListingFileViewer():
     self.textview = Gtk.TextView()
     self.textview.modify_font(Pango.FontDescription("mono"))
     self.textview.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0, 0, 0, 0.04))
+
+    self.text = format_as_block.TextAsBlock(listing_file, 132)
+    self.textview.get_buffer().set_text(self.text.text)
+
 
     self.scrolledwindow.add(self.textview)
 

@@ -7,7 +7,6 @@ parent, root = file.parent, file.parents[1]
 sys.path.append(str(root))
 from listingfile import listing_file_68k
 from listingfile import printed_file
-from assembly_viewer import format_as_block
 from listingfile import assembly_code_68k
 
 import assembly_viewer.listing_file_viewer
@@ -23,11 +22,9 @@ win.set_default_size(1100, 700)
 box = Gtk.Box(spacing=6)
 win.add(box)
 
-listing_file_viewer = assembly_viewer.listing_file_viewer.ListingFileViewer()
+file = open("tests/listingfile/TestData/JCOBITCP_JCOBTCC.LIS").read().replace("\f"," ")
 
-ifile = open("tests/listingfile/TestData/JCOBITCP_JCOBTCC.LIS").read().replace("\f"," ")
-text = format_as_block.TextAsBlock(ifile, 132)
-listing_file_viewer.textbuffer().set_text(text.text)
+listing_file_viewer = assembly_viewer.listing_file_viewer.ListingFileViewer(file)
 
 all_lines_orig = listing_file_68k.open_file("tests/listingfile/TestData/JCOBITCP_JCOBTCC.LIS")
 
@@ -42,7 +39,7 @@ for line in all_lines_orig:
     instruction.go_to = []
   elif assembly_code_68k.decode_label(line):
     label = assembly_code_68k.decode_label(line)
-    label.lines = line.lines
+    #label.lines = line.lines
     all_lines.append(label)
     assembler_code.append(label)
     label.come_from = []
@@ -57,8 +54,11 @@ for label in (l for l in assembler_code if type(l) == assembly_code_68k.Label):
   
 
 def make_highlighter(lines):
-    on_display = [tuple(map( lambda from_to : text.translator.source_to_target(from_to), content.raw.from_to))
+    on_display = [tuple(map( lambda from_to : listing_file_viewer.text.translator.source_to_target(from_to), content.raw.from_to))
                      for content in lines]
+    [tuple(map( lambda from_to : listing_file_viewer.text.translator.source_to_target(from_to), content.raw.from_to))
+                     for content in lines]
+
     selections = [tuple(map( lambda from_to : listing_file_viewer.pointer_to_position(from_to), selection))
                      for selection in on_display]
     return selections
@@ -105,7 +105,7 @@ class ContentSelector:
     selected_line = all_lines[self.line_number]
     selected_page = selected_line.lines[0].page_header + selected_line.lines[0].page_content
     selected_content = (selected_page[0].from_to[0], selected_page[-1].from_to[1])
-    selected_text = tuple(map( lambda from_to : text.translator.source_to_target(from_to), selected_content))
+    selected_text = tuple(map( lambda from_to : listing_file_viewer.text.translator.source_to_target(from_to), selected_content))
     self.page_selection = tuple(map( lambda from_to : listing_file_viewer.textbuffer().get_iter_at_offset(from_to), selected_text))
     listing_file_viewer.apply_tag("page", self.page_selection)
 
