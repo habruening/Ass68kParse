@@ -3,7 +3,11 @@ import gi
 from gi.repository import Gtk, Pango, Gdk
 gi.require_version("Gtk", "3.0")
 
+
+
 class ListingFileViewer():
+
+
   def __init__(self):
     self.scrolledwindow = Gtk.ScrolledWindow()
     self.scrolledwindow.set_hexpand(True)
@@ -15,6 +19,11 @@ class ListingFileViewer():
 
     self.scrolledwindow.add(self.textview)
 
+    self.tags = {"line" : self.textview.get_buffer().create_tag("yellow_bg", background="yellow"),
+                 "ass_line" : self.textview.get_buffer().create_tag("orange_bg", background="orange") ,
+                 "branch_line" : self.textview.get_buffer().create_tag("green_bg", foreground="red", background="white") ,
+                 "page" : self.textview.get_buffer().create_tag("white_bg", background="white") }
+
   def textbuffer(self):
     return self.textview.get_buffer()
   
@@ -23,3 +32,11 @@ class ListingFileViewer():
 
   def widget(self):
     return self.scrolledwindow
+  
+  def apply_tag(self, tag, selection):
+    for i in self.tags.values():
+      self.textbuffer().remove_tag(i, selection[0], selection[1])
+    self.textbuffer().apply_tag(self.tags[tag], selection[0], selection[1])
+
+  def remove_tag(self, tag, selection):
+    self.textbuffer().remove_tag(self.tags[tag], selection[0], selection[1])

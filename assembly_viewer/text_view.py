@@ -68,55 +68,46 @@ class ContentSelector:
     self.line_number = 0
     self.line_selections = []
     self.page_selection = False
-    self.tags = {"line" : listing_file_viewer.textbuffer().create_tag("yellow_bg", background="yellow"),
-                 "ass_line" : listing_file_viewer.textbuffer().create_tag("orange_bg", background="orange") ,
-                 "branch_line" : listing_file_viewer.textbuffer().create_tag("green_bg", foreground="red", background="white") ,
-                 "page" : listing_file_viewer.textbuffer().create_tag("white_bg", background="white") }
-
-  def apply_tag(self, tag, selection):
-    for i in self.tags.values():
-      listing_file_viewer.textbuffer().remove_tag(i, selection[0], selection[1])
-    listing_file_viewer.textbuffer().apply_tag(self.tags[tag], selection[0], selection[1])
 
   def select_line(self):
     for selection in self.line_selections:
-      listing_file_viewer.textbuffer().remove_tag(self.tags["line"], selection[0], selection[1])
-      listing_file_viewer.textbuffer().remove_tag(self.tags["ass_line"], selection[0], selection[1])
-      listing_file_viewer.textbuffer().remove_tag(self.tags["branch_line"], selection[0], selection[1])
+      listing_file_viewer.remove_tag("line", selection)
+      listing_file_viewer.remove_tag("ass_line", selection)
+      listing_file_viewer.remove_tag("branch_line", selection)
     self.line_selections.clear()
     self.line_selections.extend(make_highlighter(all_lines[self.line_number].lines))
     for selection in self.line_selections:
-      self.apply_tag("line", selection)
+      listing_file_viewer.apply_tag("line", selection)
     if type(all_lines[self.line_number]) == assembly_code_68k.Instruction:
       instruction = all_lines[self.line_number]
       syntax_selections = make_highlighter(instruction.address + instruction.opcode + instruction.mnemonic + instruction.arguments)
       self.line_selections.extend(syntax_selections)
       for selection in syntax_selections:
-        self.apply_tag("ass_line", selection)
+        listing_file_viewer.apply_tag("ass_line", selection)
       branch_selections = make_highlighter(list([go_to.name for go_to in instruction.go_to]))
       for selection in branch_selections:
-        self.apply_tag("branch_line", selection)
+        listing_file_viewer.apply_tag("branch_line", selection)
       self.line_selections.extend(branch_selections)
     elif type(all_lines[self.line_number]) == assembly_code_68k.Label:
       label = all_lines[self.line_number]
       syntax_selections = make_highlighter(label.name)
       self.line_selections.extend(syntax_selections)
       for selection in syntax_selections:
-        self.apply_tag("ass_line", selection)
+        listing_file_viewer.apply_tag("ass_line", selection)
       branch_selections = make_highlighter(list([come_from.line for come_from in label.come_from]))
       for selection in branch_selections:
-        self.apply_tag("branch_line", selection)
+        listing_file_viewer.apply_tag("branch_line", selection)
       self.line_selections.extend(branch_selections)
 
   def select_page(self):
     if self.page_selection:
-      listing_file_viewer.textbuffer().remove_tag(self.tags["page"], self.page_selection[0], self.page_selection[1])
+      listing_file_viewer.remove_tag("page", self.page_selection)
     selected_line = all_lines[self.line_number]
     selected_page = selected_line.lines[0].page_header + selected_line.lines[0].page_content
     selected_content = (selected_page[0].from_to[0], selected_page[-1].from_to[1])
     selected_text = tuple(map( lambda from_to : text.translator.source_to_target(from_to), selected_content))
     self.page_selection = tuple(map( lambda from_to : listing_file_viewer.textbuffer().get_iter_at_offset(from_to), selected_text))
-    self.apply_tag("page", self.page_selection)
+    listing_file_viewer.apply_tag("page", self.page_selection)
 
 selection = ContentSelector()
     
