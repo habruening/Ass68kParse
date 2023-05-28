@@ -18,6 +18,9 @@ from gi.repository import Gtk, Pango, Gdk
 win = Gtk.Window()
 win.set_default_size(1100, 700)
 
+box = Gtk.Box(spacing=6)
+win.add(box)
+
 scrolledwindow = Gtk.ScrolledWindow()
 scrolledwindow.set_hexpand(True)
 scrolledwindow.set_vexpand(True)
@@ -156,7 +159,18 @@ def on_cursor_changed(a, b):
 win.connect("key-press-event",on_key_press_event)
 textbuffer.connect("notify::cursor-position",on_cursor_changed)
 
-win.add(scrolledwindow)
+box.pack_start(scrolledwindow, True, True, 0)
+
+html = "<h1>This is HTML content</h1><p>I am displaying this in python</p"
+
+gi.require_version("WebKit2", "4.0")
+from gi.repository import WebKit2, Gtk, GLib
+
+view = WebKit2.WebView()
+view.load_html(html)
+box.pack_start(view, True, True, 0)
+
+
 win.connect("destroy", Gtk.main_quit)
 win.show_all()
 Gtk.main()
