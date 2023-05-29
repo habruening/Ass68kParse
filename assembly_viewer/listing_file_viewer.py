@@ -96,6 +96,19 @@ class ContentSelector:
         self.listing_file_viewer.apply_tag("branch_line", selection)
       self.line_selections.extend(branch_selections)
 
+  def set_selection_to_line_before(self):
+    while 0 < self.line_number:
+      self.line_number = self.line_number - 1
+      if str(self.all_lines[self.line_number]):
+        break
+
+  def set_selection_to_line_after(self):
+    while (self.line_number < len(self.all_lines) - 1):
+      self.line_number = self.line_number + 1
+      if str(self.all_lines[self.line_number]):
+        break
+
+
   def select_page(self):
     if self.page_selection:
       self.listing_file_viewer.remove_tag("page", self.page_selection)

@@ -58,15 +58,9 @@ def on_key_press_event(window, event):
   global selection
   keyname = Gdk.keyval_name(event.keyval)
   if keyname == "Down":
-    while (selection.line_number < len(all_lines) - 1):
-      selection.line_number = selection.line_number + 1
-      if str(all_lines[selection.line_number]):
-        break
+    selection.set_selection_to_line_after()
   if keyname == "Up":
-    while 0 < selection.line_number:
-      selection.line_number = selection.line_number - 1
-      if str(all_lines[selection.line_number]):
-        break
+    selection.set_selection_to_line_before()
   selection.select_page()
   selection.select_line()
   listing_file_viewer.textbuffer().place_cursor(selection.line_selections[0][0])
