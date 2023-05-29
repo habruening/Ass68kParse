@@ -73,6 +73,9 @@ class ContentSelector:
     self.listing_file_viewer = listing_file_viewer
     self.all_lines = all_lines
 
+  def selected_line(self):
+    return self.all_lines[self.line_number]
+
   def select_line(self):
     for selection in self.line_selections:
       self.listing_file_viewer.remove_tag("line", selection)

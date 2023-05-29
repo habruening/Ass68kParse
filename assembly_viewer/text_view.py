@@ -10,6 +10,7 @@ from listingfile import printed_file
 from listingfile import assembly_code_68k
 
 import assembly_viewer.listing_file_viewer
+import assembly_interpreter.hex_decoder
 
 import gi
 
@@ -55,15 +56,34 @@ listing_file_viewer = assembly_viewer.listing_file_viewer.ListingFileViewer(file
 
 
   
-html = "<h1>This is HTML content</h1><p>I am displaying this in python</p"
-
-
+html = open("assembly_manual/html/Sec. 4, MOVEQ.html").read()
 
 gi.require_version("WebKit2", "4.0")
 from gi.repository import WebKit2, Gtk, GLib
 
 view = WebKit2.WebView()
 view.load_html(html)
+settings = view.get_settings()
+settings.set_enable_javascript(True)
+view.set_settings(settings)
+
+html_regs = open("assembly_manual/html/Sec. 1, 1.1.1 Data Registers (D7 – D0).html").read().replace('"', '\\"').replace("\n", "\\n")
+java_script_command = 'load_register_manual("'+html_regs+'")'
+from threading import Timer
+def hello():
+  view.evaluate_javascript(java_script_command, -1, None, None, None, None, None)
+  print("done")
+
+t = Timer(3.0, hello)
+t.start() # after 30 seconds, "hello, world" will be printed
+
+def update_html(instruction):
+  html = ""
+  if type(instruction) == assembly_code_68k.Instruction:
+    html = "Assembler Instruction: "+str(assembly_interpreter.hex_decoder.make_byte_sequence_from_hex_string(str(instruction.opcode)))
+  else:
+    html = "undef"
+  view.load_html(html)
 
 def on_key_press_event(window, event):
   keyname = Gdk.keyval_name(event.keyval)
@@ -74,6 +94,7 @@ def on_key_press_event(window, event):
   listing_file_viewer.selection.select_page()
   listing_file_viewer.selection.select_line()
   listing_file_viewer.place_corsur()
+  update_html(listing_file_viewer.selection.selected_line())
   return True
 
 win.connect("key-press-event",on_key_press_event)
