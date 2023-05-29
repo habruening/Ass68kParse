@@ -11,7 +11,7 @@ from listingfile import assembly_code_68k
 class ListingFileViewer():
 
 
-  def __init__(self, listing_file):
+  def __init__(self, listing_file, all_lines):
     self.scrolledwindow = Gtk.ScrolledWindow()
     self.scrolledwindow.set_hexpand(True)
     self.scrolledwindow.set_vexpand(True)
@@ -30,10 +30,17 @@ class ListingFileViewer():
                  "ass_line" : self.textview.get_buffer().create_tag("orange_bg", background="orange") ,
                  "branch_line" : self.textview.get_buffer().create_tag("green_bg", foreground="red", background="white") ,
                  "page" : self.textview.get_buffer().create_tag("white_bg", background="white") }
+    
+    self.selection = ContentSelector(self, all_lines)
+
+    self.textview.get_buffer().connect("notify::cursor-position",lambda a , b : self.selection.cursor_moved())
 
   def textbuffer(self):
     return self.textview.get_buffer()
   
+  def place_corsur(self):
+    self.textbuffer().place_cursor(self.selection.line_selections[0][0])
+
   def pointer_to_position(self, position):
     return self.textbuffer().get_iter_at_offset(position)
 
@@ -118,3 +125,16 @@ class ContentSelector:
     selected_text = tuple(map( lambda from_to : self.listing_file_viewer.text.translator.source_to_target(from_to), selected_content))
     self.page_selection = tuple(map( lambda from_to : self.listing_file_viewer.textbuffer().get_iter_at_offset(from_to), selected_text))
     self.listing_file_viewer.apply_tag("page", self.page_selection)
+
+  def cursor_moved(self):
+    cursor_position = self.listing_file_viewer.text.translator.target_to_source(self.listing_file_viewer.textbuffer().props.cursor_position)
+    def find_subline():
+      selected_line = 0
+      while(True):
+        for sl in self.all_lines[selected_line].lines:
+          if cursor_position < sl.raw.from_to[1]:
+            return selected_line
+        selected_line = selected_line + 1
+    self.line_number = find_subline()
+    self.select_page()
+    self.select_line()
