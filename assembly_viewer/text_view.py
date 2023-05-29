@@ -39,7 +39,7 @@ for line in all_lines_orig:
     instruction.go_to = []
   elif assembly_code_68k.decode_label(line):
     label = assembly_code_68k.decode_label(line)
-    #label.lines = line.lines
+    label.lines = line.lines
     all_lines.append(label)
     assembler_code.append(label)
     label.come_from = []
@@ -52,64 +52,7 @@ for label in (l for l in assembler_code if type(l) == assembly_code_68k.Label):
       instruction.go_to.append(label)
       label.come_from.append(instruction)
   
-
-def make_highlighter(lines):
-    on_display = [tuple(map( lambda from_to : listing_file_viewer.text.translator.source_to_target(from_to), content.raw.from_to))
-                     for content in lines]
-    [tuple(map( lambda from_to : listing_file_viewer.text.translator.source_to_target(from_to), content.raw.from_to))
-                     for content in lines]
-
-    selections = [tuple(map( lambda from_to : listing_file_viewer.pointer_to_position(from_to), selection))
-                     for selection in on_display]
-    return selections
-
-class ContentSelector:
-  def __init__(self):
-    self.line_number = 0
-    self.line_selections = []
-    self.page_selection = False
-
-  def select_line(self):
-    for selection in self.line_selections:
-      listing_file_viewer.remove_tag("line", selection)
-      listing_file_viewer.remove_tag("ass_line", selection)
-      listing_file_viewer.remove_tag("branch_line", selection)
-    self.line_selections.clear()
-    self.line_selections.extend(make_highlighter(all_lines[self.line_number].lines))
-    for selection in self.line_selections:
-      listing_file_viewer.apply_tag("line", selection)
-    if type(all_lines[self.line_number]) == assembly_code_68k.Instruction:
-      instruction = all_lines[self.line_number]
-      syntax_selections = make_highlighter(instruction.address + instruction.opcode + instruction.mnemonic + instruction.arguments)
-      self.line_selections.extend(syntax_selections)
-      for selection in syntax_selections:
-        listing_file_viewer.apply_tag("ass_line", selection)
-      branch_selections = make_highlighter(list([go_to.name for go_to in instruction.go_to]))
-      for selection in branch_selections:
-        listing_file_viewer.apply_tag("branch_line", selection)
-      self.line_selections.extend(branch_selections)
-    elif type(all_lines[self.line_number]) == assembly_code_68k.Label:
-      label = all_lines[self.line_number]
-      syntax_selections = make_highlighter(label.name)
-      self.line_selections.extend(syntax_selections)
-      for selection in syntax_selections:
-        listing_file_viewer.apply_tag("ass_line", selection)
-      branch_selections = make_highlighter(list([come_from.line for come_from in label.come_from]))
-      for selection in branch_selections:
-        listing_file_viewer.apply_tag("branch_line", selection)
-      self.line_selections.extend(branch_selections)
-
-  def select_page(self):
-    if self.page_selection:
-      listing_file_viewer.remove_tag("page", self.page_selection)
-    selected_line = all_lines[self.line_number]
-    selected_page = selected_line.lines[0].page_header + selected_line.lines[0].page_content
-    selected_content = (selected_page[0].from_to[0], selected_page[-1].from_to[1])
-    selected_text = tuple(map( lambda from_to : listing_file_viewer.text.translator.source_to_target(from_to), selected_content))
-    self.page_selection = tuple(map( lambda from_to : listing_file_viewer.textbuffer().get_iter_at_offset(from_to), selected_text))
-    listing_file_viewer.apply_tag("page", self.page_selection)
-
-selection = ContentSelector()
+selection = assembly_viewer.listing_file_viewer.ContentSelector(listing_file_viewer, all_lines)
     
 def on_key_press_event(window, event):
   global selection
@@ -130,7 +73,7 @@ def on_key_press_event(window, event):
   return True
 
 def on_cursor_changed(a, b):
-  cursor_position = text.translator.target_to_source(listing_file_viewer.textbuffer().props.cursor_position)
+  cursor_position = listing_file_viewer.text.translator.target_to_source(listing_file_viewer.textbuffer().props.cursor_position)
   def find_subline():
     selected_line = 0
     while(True):
