@@ -1,11 +1,14 @@
 import assembly_interpreter.hex_decoder
 
-def map_bit(decoded_instruction, bit_no):
-  for field in decoded_instruction.keys():
-    if field == "name":
+def get_field_value(decoded_instruction, field_name):
+  return decoded_instruction[field_name]["extracted_bits"]
+
+def identify_field_of_bit_no(decoded_instruction, bit_no):
+  for key, value in decoded_instruction.items():
+    if key == "name":
       continue
-    if bit_no < len(decoded_instruction[field]["mask"]) and decoded_instruction[field]["mask"][bit_no]:
-      return field
+    if bit_no < len(value["mask"]) and value["mask"][bit_no]:
+      return key
 
 def decode_moveq(opcode):
   undecoded_instruction = assembly_interpreter.hex_decoder.make_undecoded_opcode_from_hex_string(opcode)

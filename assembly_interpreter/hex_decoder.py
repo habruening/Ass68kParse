@@ -27,7 +27,8 @@ def check_bits(bits, mask, check):
   mask = ensure_is_bits(mask)
   check = ensure_is_bits(check)
   extracted_bits = extract_bits(bits, mask)
-  return extracted_bits == check
+  if extracted_bits == check:
+    return extracted_bits
 
 def as_undecoded(bits):
   return ~Bits(length = bits.len)
@@ -46,9 +47,10 @@ def make_opcode_extraction(opcode_with_undecoded, extracted_bits, mask):
 def decode_from_opcode(opcode_with_undecoded, mask, check):
   if("opcode_with_undecoded" in opcode_with_undecoded.keys()):
     opcode_with_undecoded = opcode_with_undecoded["opcode_with_undecoded"]
-  if check_bits(opcode_with_undecoded["opcode"], mask, check):
-    return make_opcode_extraction(set_decoded_in_opcode(opcode_with_undecoded, mask), check, mask)
-  return False
+  result = check_bits(opcode_with_undecoded["opcode"], mask, check)
+  if result == None or not(len(result)):
+    return False
+  return make_opcode_extraction(set_decoded_in_opcode(opcode_with_undecoded, mask), result, mask)
 
 def decode_and_get_from_opcode(opcode_with_undecoded, mask):
   if("opcode_with_undecoded" in opcode_with_undecoded.keys()):

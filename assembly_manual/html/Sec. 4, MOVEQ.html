@@ -88,7 +88,7 @@
       document.getElementById("register_manual").innerHTML = '';
       document.getElementById("register_manual").appendChild(manual_dom.getElementById("as_embedded"))
     }
-    function highlight_bit(bit_no, field_name) {
+    function highlight_bit(field_value, bit_no, field_name) {
       clear_highlighting(); 
       bit_id = "bit_" + bit_no.toString();
       document.getElementById(bit_id).style.backgroundColor = "orange";
