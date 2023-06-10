@@ -12,6 +12,8 @@ from listingfile import assembly_code_68k
 import assembly_viewer.listing_file_viewer
 import assembly_interpreter.hex_decoder
 
+import assembly_interpreter.assembler_instructions
+
 import gi
 
 gi.require_version("Gtk", "3.0")
@@ -54,55 +56,62 @@ for label in (l for l in assembler_code if type(l) == assembly_code_68k.Label):
 listing_file_viewer = assembly_viewer.listing_file_viewer.ListingFileViewer(file, all_lines)
     
 
+import help_viewer.assembly_html_help
+import help_viewer.assembly_decoding_help
+view = help_viewer.assembly_html_help.make_view()
 
-  
-html = open("assembly_manual/html/Sec. 4, MOVEQ.html").read()
 
-gi.require_version("WebKit2", "4.0")
-from gi.repository import WebKit2, Gtk, GLib
+box.pack_start(listing_file_viewer.widget(), True, True, 0)
+box.set_homogeneous(True)
+help_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+help_box.pack_end(view, True, True, 0)
 
-view = WebKit2.WebView()
-view.load_html(html)
-settings = view.get_settings()
-settings.set_enable_javascript(True)
-view.set_settings(settings)
+decoding_box = help_viewer.assembly_decoding_help.make_decoding_help()
+help_box.pack_start(decoding_box, False, True, 10)
 
-html_regs = open("assembly_manual/html/Sec. 1, 1.1.1 Data Registers (D7 – D0).html").read().replace('"', '\\"').replace("\n", "\\n")
-java_script_command = 'load_register_manual("'+html_regs+'")'
-from threading import Timer
-def hello():
-  view.evaluate_javascript(java_script_command, -1, None, None, None, None, None)
-  print("done")
+box.pack_start(help_box, True, True, 0)
+bit_to_highlight = -1
 
-t = Timer(3.0, hello)
-t.start() # after 30 seconds, "hello, world" will be printed
+def update_html(instruction, new_instruction):
+  global decoding_box
+  global bit_to_highlight
+  decoding_box.destroy()
 
-def update_html(instruction):
-  html = ""
   if type(instruction) == assembly_code_68k.Instruction:
-    html = "Assembler Instruction: "+str(assembly_interpreter.hex_decoder.make_byte_sequence_from_hex_string(str(instruction.opcode)))
+    opcode = assembly_interpreter.hex_decoder.make_bits_from_hex_string(str(instruction.opcode))
+    instruction = assembly_interpreter.assembler_instructions.decode_instruction(str(instruction.opcode))
+    if instruction:
+      help_viewer.assembly_html_help.show_instruction(view, instruction["name"], bit_to_highlight, assembly_interpreter.assembler_instructions.map_bit(instruction, bit_to_highlight), new_instruction)
+    decoding_box = help_viewer.assembly_decoding_help.show_instruction(opcode, bit_to_highlight)
   else:
-    html = "undef"
-  view.load_html(html)
+    decoding_box = help_viewer.assembly_decoding_help.show_no_instruction()
+    help_viewer.assembly_html_help.show_text(view, "undef")
+    bit_to_highlight = -1
+
+  help_box.pack_start(decoding_box, False, True, 10)
+  help_box.show_all()
 
 def on_key_press_event(window, event):
+  global bit_to_highlight
   keyname = Gdk.keyval_name(event.keyval)
+  new_instruction = True
   if keyname == "Down":
     listing_file_viewer.selection.set_selection_to_line_after()
   if keyname == "Up":
     listing_file_viewer.selection.set_selection_to_line_before()
+  if keyname == "Left":
+    bit_to_highlight -= 1
+    new_instruction = False
+  if keyname == "Right":
+    bit_to_highlight += 1
+    new_instruction = False
   listing_file_viewer.selection.select_page()
   listing_file_viewer.selection.select_line()
   listing_file_viewer.place_corsur()
-  update_html(listing_file_viewer.selection.selected_line())
+  update_html(listing_file_viewer.selection.selected_line(), new_instruction)
   return True
 
 win.connect("key-press-event",on_key_press_event)
-
-box.pack_start(listing_file_viewer.widget(), True, True, 0)
-box.pack_start(view, True, True, 0)
-
-
 win.connect("destroy", Gtk.main_quit)
 win.show_all()
 Gtk.main()

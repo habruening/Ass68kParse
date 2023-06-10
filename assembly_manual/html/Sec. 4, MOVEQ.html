@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>MOVEQ</title>
+    <style>
+      table {
+         border-collapse: collapse;
+      }
+      td{
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <p><b>SECTION 4 INTEGER INSTRUCTIONS</b></p>
+    <p><b>MOVEQ</b></p><p style="text-align:center">Move Quick</p>
+    <hr>
+    <h2>Operation</h2>
+    <p><span class="data">Immediate Data</span> → <span class="register">Destination</span></p>
+    <h2>Assembler Syntax</h2>
+    <p><span class="moveq">MOVEQ</span> <span class="data">#&lt; data &gt;</span>, <span class="register">Dn</span></p>
+    <h2>Attributes</h2>
+    <p>Size = (Long)</p>
+    <h2>Description</h2>
+    <p>Moves a byte of immediate data to a 32-bit data register. The data in an 8-bit field within the operation word is sign- extended to a long operand in the data register</span> as it is transferred.</p>
+    <h2>Condition Codes</h2>
+    <table>
+      <tr><th style="width:20%;">X</th><th style="width:20%;">N</th><th style="width:20%;">Z</th><th style="width:20%;">V</th><th style="width:20%;">C</th></tr>
+      <tr><td>-</td><td>*</td><td>*</td><td>0</td><td>0</td></tr>
+    </table>
+    <p>X — Not affected.<br>
+    N — Set if the result is negative; cleared otherwise.<br>
+    Z — Set if the result is zero; cleared otherwise.<br>
+    V — Always cleared.<br>
+    C — Always cleared.</p>
+    <h2>Instruction Format</h2>
+    <table style="width: 100%;">
+      <tr>
+        <th style="width:6.25%;" id="bit_0" class="bits">15</th>
+        <th style="width:6.25%;" id="bit_1" class="bits">14</th>
+        <th style="width:6.25%;" id="bit_2" class="bits">13</th>
+        <th style="width:6.25%;" id="bit_3" class="bits">12</th>
+        <th style="width:6.25%;" id="bit_4" class="bits">11</th>
+        <th style="width:6.25%;" id="bit_5" class="bits">10</th>
+        <th style="width:6.25%;" id="bit_6" class="bits">9</th>
+        <th style="width:6.25%;" id="bit_7" class="bits">8</th>
+        <th style="width:6.25%;" id="bit_8" class="bits">7</th>
+        <th style="width:6.25%;" id="bit_9" class="bits">6</th>
+        <th style="width:6.25%;" id="bit_10" class="bits">5</th>
+        <th style="width:6.25%;" id="bit_11" class="bits">4</th>
+        <th style="width:6.25%;" id="bit_12" class="bits">3</th>
+        <th style="width:6.25%;" id="bit_13" class="bits">2</th>
+        <th style="width:6.25%;" id="bit_14" class="bits">1</th>
+        <th style="width:6.25%;" id="bit_15" class="bits">0</th>
+      </tr>
+      <tr>
+        <td class="moveq">0</td>
+        <td class="moveq">1</td>
+        <td class="moveq">1</td>
+        <td class="moveq">1</td>
+        <td colspan="3" class="register" style="text-align:center">REGISTER</td>
+        <td class="moveq">0</td>
+        <td colspan="8" class="data" style="text-align:center">DATA</td>
+      </tr>
+    </table>
+    <div style="margin-left: 40px" id="register_manual" class="register">
+    </div>
+    <h2>Instruction Fields</h2>
+    <p class="register">Register field — Specifies the data register to be loaded.</p>
+    <p class="data">Data field — Eight bits of data, which are sign-extended to a long operand.</p>
+    <hr>
+  </body>
+  <script>
+    function clear_highlighting() {
+      const classes = ["bits", "moveq", "register", "data"]
+      classes.forEach(function (purpose) {
+        const elements = Array.from(document.getElementsByClassName(purpose));
+        elements.forEach(function (element) {
+          element.style.backgroundColor = null;
+        });
+      });
+    }
+    function load_register_manual(manual) {
+      manual_dom = (new DOMParser()).parseFromString(manual, "text/html");
+      document.getElementById("register_manual").innerHTML = '';
+      document.getElementById("register_manual").appendChild(manual_dom.getElementById("as_embedded"))
+    }
+    function highlight_bit(bit_no, field_name) {
+      clear_highlighting(); 
+      bit_id = "bit_" + bit_no.toString();
+      document.getElementById(bit_id).style.backgroundColor = "orange";
+      const elements = Array.from(document.getElementsByClassName(field_name));
+      elements.forEach(function (element) {
+        element.style.backgroundColor = "yellow";
+      });
+    }
+    </script>
+</html>

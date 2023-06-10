@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>MOVEQ</title>
+    <style>
+      table {
+         border-collapse: collapse;
+      }
+      td{
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <p><b>SECTION 4 INTEGER INSTRUCTIONS</b></p>
+    <p><b>MOVE</b></p><p style="text-align:center">Move Data from Source to Destination</p>
+    <hr>
+    <h2>Operation</h2>
+    <p>Source → Destination</p>
+    <h2>Assembler Syntax</h2>
+    <p>MOVE &lt; ea &gt; , &lt; ea &gt;</p>
+    <h2>Attributes</h2>
+    <p>Size = (Byte, Word, Long)</p>
+    <h2>Description</h2>
+    <p>Moves the data at the source to the destination location and sets the condition
+      codes according to the data. The size of the operation may be specified as byte, word,
+      or long. Condition Codes:</p>
+      <table>
+        <tr><th style="width:20%;">X</th><th style="width:20%;">N</th><th style="width:20%;">Z</th><th style="width:20%;">V</th><th style="width:20%;">C</th></tr>
+        <tr><td>-</td><td>*</td><td>*</td><td>0</td><td>0</td></tr>
+      </table>
+      <p>X — Not affected.<br>
+      N — Set if the result is negative; cleared otherwise.<br>
+      Z — Set if the result is zero; cleared otherwise.<br>
+      V — Always cleared.<br>
+      C — Always cleared.</p>
+      <h2>Instruction Format</h2>
+    <table style="width: 100%;">
+      <tr>
+        <th style="width:6.25%;" id="bit_0" class="bits">15</th>
+        <th style="width:6.25%;" id="bit_1" class="bits">14</th>
+        <th style="width:6.25%;" id="bit_2" class="bits">13</th>
+        <th style="width:6.25%;" id="bit_3" class="bits">12</th>
+        <th style="width:6.25%;" id="bit_4" class="bits">11</th>
+        <th style="width:6.25%;" id="bit_5" class="bits">10</th>
+        <th style="width:6.25%;" id="bit_6" class="bits">9</th>
+        <th style="width:6.25%;" id="bit_7" class="bits">8</th>
+        <th style="width:6.25%;" id="bit_8" class="bits">7</th>
+        <th style="width:6.25%;" id="bit_9" class="bits">6</th>
+        <th style="width:6.25%;" id="bit_10" class="bits">5</th>
+        <th style="width:6.25%;" id="bit_11" class="bits">4</th>
+        <th style="width:6.25%;" id="bit_12" class="bits">3</th>
+        <th style="width:6.25%;" id="bit_13" class="bits">2</th>
+        <th style="width:6.25%;" id="bit_14" class="bits">1</th>
+        <th style="width:6.25%;" id="bit_15" class="bits">0</th>
+      </tr>
+      <tr>
+        <td style="border-bottom:none;"></td>
+        <td style="border-bottom:none;"></td>
+        <td colspan="2" style="border-bottom:none;"></td>
+        <td colspan="6" style="text-align:center;border-bottom:none;">DESTINATION</td>
+        <td colspan="6" style="text-align:center;border-bottom:none;">SOURCE</td>
+      </tr>
+      <tr>
+        <td class="move" style="border-top:none;">0</td>
+        <td class="move" style="border-top:none;">1</td>
+        <td colspan="2" class="size" style="text-align:center;border-top:none;">SIZE</td>
+        <td colspan="3" class="destination_register" style="text-align:center;border-top:none;">REGISTER</td>
+        <td colspan="3" class="destination_mode" style="text-align:center;border-top:none;">MODE</td>
+        <td colspan="3" class="source_mode" style="text-align:center;border-top:none;">MODE</td>
+        <td colspan="3" class="source_register" style="text-align:center;border-top:none;">REGISTER</td>
+      </tr>
+    </table>
+    <div style="margin-left: 40px" id="register_manual" class="register">
+    </div>
+    <h2>Instruction Fields</h2>
+    <p class="size">Size field — Specifies the size of the operand to be moved.</p>
+    <div style="margin-left: 42px"><p>
+      <span class="byte_operationn">01 — Byte operation</span><br>
+      <span class="word_operationn">11 — Word operation</span><br>
+      <span class="long_operationn">10 — Long operation</span><br>
+    </p></div>
+    <hr>
+  </body>
+  <script>
+    function clear_highlighting() {
+      const classes = ["bits", "move", "size", "destination_register", "destination_mode", "source_mode", "source_register"]
+      classes.forEach(function (purpose) {
+        const elements = Array.from(document.getElementsByClassName(purpose));
+        elements.forEach(function (element) {
+          element.style.backgroundColor = null;
+        });
+      });
+    }
+    function load_register_manual(manual) {
+      manual_dom = (new DOMParser()).parseFromString(manual, "text/html");
+      document.getElementById("register_manual").innerHTML = '';
+      document.getElementById("register_manual").appendChild(manual_dom.getElementById("as_embedded"))
+    }
+    function highlight_bit(bit_no, field_name) {
+      clear_highlighting(); 
+      bit_id = "bit_" + bit_no.toString();
+      document.getElementById(bit_id).style.backgroundColor = "orange";
+      const elements = Array.from(document.getElementsByClassName(field_name));
+      elements.forEach(function (element) {
+        element.style.backgroundColor = "yellow";
+      });
+    }
+    </script>
+</html>
