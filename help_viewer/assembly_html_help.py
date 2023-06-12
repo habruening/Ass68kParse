@@ -18,31 +18,26 @@ def make_view():
   return view
 
 def show_instruction(view, instruction, bit_to_highlight, field_to_highlight, field_value, new_instruction):
-  html = "undef"
+  html = open("assembly_manual/html/Sec. 4, {}.html".format(instruction)).read()
   if instruction == "MOVEQ":
+    # This is a work around, because AJAX does not work.
     html_regs = ""
-    html = open("assembly_manual/html/Sec. 4, MOVEQ.html").read()
-    if 4 <= bit_to_highlight and bit_to_highlight <= 6:
+    if field_to_highlight == "register":
       html_regs = open("assembly_manual/html/Sec. 1, 1.1.1 Data Registers (D7 – D0).html").read().replace('"', '\\"').replace("\n", "\\n")
     def red():
-      field_value_ = "".join(["1" if bit else "0" for bit in field_value])
-      java_script_command = 'highlight_bit("{}", {}, "{}")'.format(field_value_, bit_to_highlight, field_to_highlight)
-      view.evaluate_javascript(java_script_command, -1, None, None, None, None, None)
       java_script_command = 'load_register_manual("'+html_regs+'")'
       view.evaluate_javascript(java_script_command, -1, None, None, None, None, None)
 
     t = Timer(0.1, red)
     t.start()
 
-  if instruction == "MOVE":
-    html = open("assembly_manual/html/Sec. 4, MOVE.html").read()
-    def red():
-      field_value_ = "".join(["1" if bit else "0" for bit in field_value])
-      java_script_command = 'highlight_bit("{}", {}, "{}")'.format(field_value_, bit_to_highlight, field_to_highlight)
-      view.evaluate_javascript(java_script_command, -1, None, None, None, None, None)
+  def red():
+    field_value_ = "".join(["1" if bit else "0" for bit in field_value])
+    java_script_command = 'highlight_bit("{}", {}, "{}")'.format(field_value_, bit_to_highlight, field_to_highlight)
+    view.evaluate_javascript(java_script_command, -1, None, None, None, None, None)
+  t = Timer(0.1, red)
+  t.start()
 
-    t = Timer(0.1, red)
-    t.start()
   if new_instruction:
     view.load_html(html)
   view.show_all()  
