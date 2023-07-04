@@ -85,33 +85,5 @@
     </p></div>
     <hr>
   </body>
-  <script>
-    function clear_highlighting() {
-      const classes = ["bits", "move", "size", "destination_register", "destination_mode", "source_mode", "source_register", "size_01", "size_11", "size_10"]
-      classes.forEach(function (purpose) {
-        const elements = Array.from(document.getElementsByClassName(purpose));
-        elements.forEach(function (element) {
-          element.style.backgroundColor = null;
-        });
-      });
-    }
-    function load_register_manual(manual) {
-      manual_dom = (new DOMParser()).parseFromString(manual, "text/html");
-      document.getElementById("register_manual").innerHTML = '';
-      document.getElementById("register_manual").appendChild(manual_dom.getElementById("as_embedded"))
-    }
-    function highlight_bit(field_value, bit_no, field_name) {
-      clear_highlighting(); 
-      bit_id = "bit_" + bit_no.toString();
-      document.getElementById(bit_id).style.backgroundColor = "orange";
-      const elements_f = Array.from(document.getElementsByClassName(field_name));
-      elements_f.forEach(function (element) {
-        element.style.backgroundColor = "yellow";
-      });
-      const elements_v = Array.from(document.getElementsByClassName(field_name+ "_" + field_value));
-      elements_v.forEach(function (element) {
-        element.style.backgroundColor = "yellow";
-      });
-    }
-    </script>
+  <script src="dynamic_manual.js"></script>
 </html>

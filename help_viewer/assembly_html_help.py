@@ -12,6 +12,7 @@ def make_view():
   view = WebKit2.WebView()
   settings = view.get_settings()
   settings.set_enable_javascript(True)
+  settings.set_allow_file_access_from_file_urls(True)
   view.set_settings(settings)
   html = "undef"
   view.load_html(html)
@@ -39,7 +40,7 @@ def show_instruction(view, instruction, bit_to_highlight, field_to_highlight, fi
   t.start()
 
   if new_instruction:
-    view.load_html(html)
+    view.load_uri("file:/home/hartmut/Ass68kParse/assembly_manual/html/Sec. 4, {}.html".format(instruction))
   view.show_all()  
 
 def show_text(view, text):
