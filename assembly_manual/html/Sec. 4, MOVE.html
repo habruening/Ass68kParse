@@ -1,4 +1,12 @@
 <!DOCTYPE html>
+<!-- fields: 
+"move"                 : ("0b11", "0b00")
+"size"                 :  "0b0011"
+"destination_register" :  "0b0000111"
+"destination_mode"     :  "0b0000000111"
+"source_mode"          :  "0b0000000000111"
+"source_register"      :  "0b0000000000000111"
+-->
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -9,7 +17,7 @@
       }
       td{
         border: 1px solid #dddddd;
-        text-align: left;
+        text-align: center;
         padding: 8px;
       }
     </style>
@@ -19,11 +27,11 @@
     <p><b>MOVE</b></p><p style="text-align:center">Move Data from Source to Destination</p>
     <hr>
     <h2>Operation</h2>
-    <p>Source → Destination</p>
+    <p><span class="HIGHLIGHTING HIGHLIGHTING_field_source_register HIGHLIGHTING_field_source_mode">Source</span> → <span class="HIGHLIGHTING HIGHLIGHTING_field_destination_register HIGHLIGHTING_field_destination_mode">Destination</span></p>
     <h2>Assembler Syntax</h2>
-    <p>MOVE &lt; ea &gt; , &lt; ea &gt;</p>
+    <p><span class="HIGHLIGHTING HIGHLIGHTING_field_move">MOVE</span> <span class="HIGHLIGHTING HIGHLIGHTING_field_source_register HIGHLIGHTING_field_source_mode">&lt; ea &gt;</span> , <span class="HIGHLIGHTING HIGHLIGHTING_field_destination_register HIGHLIGHTING_field_destination_mode">&lt; ea &gt;</span></p>
     <h2>Attributes</h2>
-    <p>Size = (Byte, Word, Long)</p>
+    <p>Size = (<span class="HIGHLIGHTING HIGHLIGHTING_field_value_size_01">Byte</span>, <span class="HIGHLIGHTING HIGHLIGHTING_field_value_size_11">Word</span>, <span class="HIGHLIGHTING HIGHLIGHTING_field_value_size_10">Long</span>)</p>
     <h2>Description</h2>
     <p>Moves the data at the source to the destination location and sets the condition
       codes according to the data. The size of the operation may be specified as byte, word,
@@ -40,49 +48,87 @@
       <h2>Instruction Format</h2>
     <table style="width: 100%;">
       <tr>
-        <th style="width:6.25%;" id="bit_0" class="bits">15</th>
-        <th style="width:6.25%;" id="bit_1" class="bits">14</th>
-        <th style="width:6.25%;" id="bit_2" class="bits">13</th>
-        <th style="width:6.25%;" id="bit_3" class="bits">12</th>
-        <th style="width:6.25%;" id="bit_4" class="bits">11</th>
-        <th style="width:6.25%;" id="bit_5" class="bits">10</th>
-        <th style="width:6.25%;" id="bit_6" class="bits">9</th>
-        <th style="width:6.25%;" id="bit_7" class="bits">8</th>
-        <th style="width:6.25%;" id="bit_8" class="bits">7</th>
-        <th style="width:6.25%;" id="bit_9" class="bits">6</th>
-        <th style="width:6.25%;" id="bit_10" class="bits">5</th>
-        <th style="width:6.25%;" id="bit_11" class="bits">4</th>
-        <th style="width:6.25%;" id="bit_12" class="bits">3</th>
-        <th style="width:6.25%;" id="bit_13" class="bits">2</th>
-        <th style="width:6.25%;" id="bit_14" class="bits">1</th>
-        <th style="width:6.25%;" id="bit_15" class="bits">0</th>
+        <th style="width:6.25%;" id="bit_0" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_0">15</th>
+        <th style="width:6.25%;" id="bit_1" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_1">14</th>
+        <th style="width:6.25%;" id="bit_2" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_2">13</th>
+        <th style="width:6.25%;" id="bit_3" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_3">12</th>
+        <th style="width:6.25%;" id="bit_4" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_4">11</th>
+        <th style="width:6.25%;" id="bit_5" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_5">10</th>
+        <th style="width:6.25%;" id="bit_6" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_6">9</th>
+        <th style="width:6.25%;" id="bit_7" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_7">8</th>
+        <th style="width:6.25%;" id="bit_8" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_8">7</th>
+        <th style="width:6.25%;" id="bit_9" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_9">6</th>
+        <th style="width:6.25%;" id="bit_10" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_10">5</th>
+        <th style="width:6.25%;" id="bit_11" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_11">4</th>
+        <th style="width:6.25%;" id="bit_12" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_12">3</th>
+        <th style="width:6.25%;" id="bit_13" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_13">2</th>
+        <th style="width:6.25%;" id="bit_14" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_14">1</th>
+        <th style="width:6.25%;" id="bit_15" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_15">0</th>
       </tr>
       <tr>
         <td style="border-bottom:none;"></td>
         <td style="border-bottom:none;"></td>
         <td colspan="2" style="border-bottom:none;"></td>
-        <td colspan="6" style="text-align:center;border-bottom:none;">DESTINATION</td>
+        <td colspan="6" style="text-align:center;border-bottom:none;" class="HIGHLIGHTING HIGHLIGHTING_field_destination_register HIGHLIGHTING_field_destination_mode">DESTINATION</td>
         <td colspan="6" style="text-align:center;border-bottom:none;">SOURCE</td>
       </tr>
       <tr>
-        <td class="move" style="border-top:none;">0</td>
-        <td class="move" style="border-top:none;">1</td>
-        <td colspan="2" class="size" style="text-align:center;border-top:none;">SIZE</td>
-        <td colspan="3" class="destination_register" style="text-align:center;border-top:none;">REGISTER</td>
-        <td colspan="3" class="destination_mode" style="text-align:center;border-top:none;">MODE</td>
-        <td colspan="3" class="source_mode" style="text-align:center;border-top:none;">MODE</td>
-        <td colspan="3" class="source_register" style="text-align:center;border-top:none;">REGISTER</td>
+        <td class="HIGHLIGHTING HIGHLIGHTING_field_move" style="border-top:none;">0</td>
+        <td class="HIGHLIGHTING HIGHLIGHTING_field_move" style="border-top:none;">1</td>
+        <td colspan="2" class="HIGHLIGHTING HIGHLIGHTING_field_size" style="text-align:center;border-top:none;">SIZE</td>
+        <td colspan="3" class="HIGHLIGHTING HIGHLIGHTING_field_destination_register" style="text-align:center;border-top:none;">REGISTER</td>
+        <td colspan="3" class="HIGHLIGHTING HIGHLIGHTING_field_destination_mode" style="text-align:center;border-top:none;">MODE</td>
+        <td colspan="3" class="HIGHLIGHTING HIGHLIGHTING_field_source_mode" style="text-align:center;border-top:none;">MODE</td>
+        <td colspan="3" class="HIGHLIGHTING HIGHLIGHTING_field_source_register" style="text-align:center;border-top:none;">REGISTER</td>
       </tr>
     </table>
     <div style="margin-left: 40px" id="register_manual" class="register">
     </div>
     <h2>Instruction Fields</h2>
-    <p class="size">Size field — Specifies the size of the operand to be moved.</p>
+    <p class="HIGHLIGHTING HIGHLIGHTING_field_size">Size field — Specifies the size of the operand to be moved.</p>
     <div style="margin-left: 42px"><p>
-      <span class="size_01">01 — Byte operation</span><br>
-      <span class="size_11">11 — Word operation</span><br>
-      <span class="size_10">10 — Long operation</span><br>
+      <span   >01 — Byte operation</span><br>
+      <span class="HIGHLIGHTING HIGHLIGHTING_field_value_size_11">11 — Word operation</span><br>
+      <span class="HIGHLIGHTING HIGHLIGHTING_field_value_size_10">10 — Long operation</span><br>
     </p></div>
+    <p><span class="HIGHLIGHTING HIGHLIGHTING_field_destination_register HIGHLIGHTING_field_destination_mode">Destination Effective Address field—Specifies the destination location.</span>
+      <span class="HIGHLIGHTING HIGHLIGHTING_field_destination_mode">Only data alterable addressing modes can be used as listed in the following tables:</span></p>
+    <table style="float:left;">
+      <tr><th style="border: 1px solid #dddddd;">Adressing Mode</th><th style="border: 1px solid #dddddd;">Mode</th><th style="border: 1px solid #dddddd;">Register</th></tr>
+      <tr class="HIGHLIGHTING HIGHLIGHTING_field_value_destination_mode_000"><td>Dn</td><td>000</td><td>reg. number:Dn</td></tr>
+      <tr><td>An</td><td>---</td><td>---</td></tr>
+      <tr class="HIGHLIGHTING HIGHLIGHTING_field_value_destination_mode_010"><td>(An)</td><td>010</td><td>reg. number:An</td></tr>
+      <tr class="HIGHLIGHTING HIGHLIGHTING_field_value_destination_mode_011"><td>(An)+</td><td>011</td><td>reg. number:An</td></tr>
+      <tr class="HIGHLIGHTING HIGHLIGHTING_field_value_destination_mode_100"><td>-(An)</td><td>100</td><td>reg. number:An</td></tr>
+      <tr class="HIGHLIGHTING HIGHLIGHTING_field_value_destination_mode_101"><td>(d<sub>16</sub>,An)</td><td>101</td><td>reg. number:An</td></tr>
+      <tr><td>(d<sub>8</sub>,An,Xn)</td><td>110</td><td>reg. number:An</td></tr>      
+    </table>
+    <div style="float:left;">&nbsp;</div>
+    <table>
+      <tr><th style="border: 1px solid #dddddd;">Adressing Mode</th><th style="border: 1px solid #dddddd;">Mode</th><th style="border: 1px solid #dddddd;">Register</th></tr>
+      <tr class="HIGHLIGHTING HIGHLIGHTING_field_value_destination_mode_111"><td>(xxx).W</td><td>111</td><td>000</td></tr>
+      <tr class="HIGHLIGHTING HIGHLIGHTING_field_value_destination_mode_111"><td>(xxx).L</td><td>111</td><td>001</td></tr>
+      <tr><td>#&lt;data&gt;</td><td>---</td><td>---</td></tr>
+      <tr><td>&nbsp;</td><td></td><td></td></tr>
+      <tr><td>&nbsp;</td><td></td><td></td></tr>
+      <tr><td>(d<sub>16</sub>,PC)</td><td>---</td><td>---</td></tr>
+      <tr><td>(d<sub>8</sub>,PC,Xn)</td><td>---</td><td>---</td></tr>      
+    </table>
+    <p><b>MC68020, MC68030, and MC68040 only</b></p>
+    <table style="float:left;">
+      <tr><th style="border: 1px solid #dddddd;">Adressing Mode</th><th style="border: 1px solid #dddddd;">Mode</th><th style="border: 1px solid #dddddd;">Register</th></tr>
+      <tr><td>(bd,An,Xn)*</td><td>110</td><td>reg. number:An</td></tr>
+      <tr><td>([bd,An,Xn],od)</td><td>110</td><td>reg. number:An</td></tr>
+      <tr><td>([bd,An],Xn,od)</td><td>110</td><td>reg. number:An</td></tr>
+    </table>
+    <div style="float:left;">&nbsp;</div>
+    <table>
+      <tr><th style="border: 1px solid #dddddd;">Adressing Mode</th><th style="border: 1px solid #dddddd;">Mode</th><th style="border: 1px solid #dddddd;">Register</th></tr>
+      <tr><td>(bd,PC,Xn)*</td><td>---</td><td>---</td></tr>
+      <tr><td>([bd,PC,Xn],od)</td><td>---</td><td>---</td></tr>
+      <tr><td>([bd,PC],Xn,od)</td><td>---</td><td>---</td></tr>
+    </table>
+    <p>* Can be used with CPU32.</p>
     <hr>
   </body>
   <script src="dynamic_manual.js"></script>

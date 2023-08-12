@@ -87,7 +87,7 @@ def update_html(instruction, new_instruction):
     decoding_box = help_viewer.assembly_decoding_help.show_instruction(opcode, bit_to_highlight)
   else:
     decoding_box = help_viewer.assembly_decoding_help.show_no_instruction()
-    help_viewer.assembly_html_help.show_text(view, "undef")
+    help_viewer.assembly_html_help.show_text(view, "")
     bit_to_highlight = -1
 
   help_box.pack_start(decoding_box, False, True, 10)
@@ -99,14 +99,16 @@ def on_key_press_event(window, event):
   new_instruction = True
   if keyname == "Down":
     listing_file_viewer.selection.set_selection_to_line_after()
-  if keyname == "Up":
+  elif keyname == "Up":
     listing_file_viewer.selection.set_selection_to_line_before()
-  if keyname == "Left":
+  elif keyname == "Left":
     bit_to_highlight -= 1
     new_instruction = False
-  if keyname == "Right":
+  elif keyname == "Right":
     bit_to_highlight += 1
     new_instruction = False
+  else:
+    return
   listing_file_viewer.selection.select_page()
   listing_file_viewer.selection.select_line()
   listing_file_viewer.place_corsur()

@@ -1,4 +1,9 @@
 <!DOCTYPE html>
+<!-- fields: 
+"moveq"    : ("0b11110001", "0b01110")
+"register" :  "0b0000111"
+"data"     :  "0x        00FF"
+-->
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -19,9 +24,9 @@
     <p><b>MOVEQ</b></p><p style="text-align:center">Move Quick</p>
     <hr>
     <h2>Operation</h2>
-    <p><span class="data">Immediate Data</span> → <span class="register">Destination</span></p>
+    <p><span class="HIGHLIGHTING HIGHLIGHTING_field_data">Immediate Data</span> → <span class="HIGHLIGHTING HIGHLIGHTING_field_register">Destination</span></p>
     <h2>Assembler Syntax</h2>
-    <p><span class="moveq">MOVEQ</span> <span class="data">#&lt; data &gt;</span>, <span class="register">Dn</span></p>
+    <p><span class="HIGHLIGHTING HIGHLIGHTING_field_moveq">MOVEQ</span> <span class="data">#&lt; data &gt;</span>, <span class="HIGHLIGHTING HIGHLIGHTING_field_register">Dn</span></p>
     <h2>Attributes</h2>
     <p>Size = (Long)</p>
     <h2>Description</h2>
@@ -39,63 +44,62 @@
     <h2>Instruction Format</h2>
     <table style="width: 100%;">
       <tr>
-        <th style="width:6.25%;" id="bit_0" class="bits">15</th>
-        <th style="width:6.25%;" id="bit_1" class="bits">14</th>
-        <th style="width:6.25%;" id="bit_2" class="bits">13</th>
-        <th style="width:6.25%;" id="bit_3" class="bits">12</th>
-        <th style="width:6.25%;" id="bit_4" class="bits">11</th>
-        <th style="width:6.25%;" id="bit_5" class="bits">10</th>
-        <th style="width:6.25%;" id="bit_6" class="bits">9</th>
-        <th style="width:6.25%;" id="bit_7" class="bits">8</th>
-        <th style="width:6.25%;" id="bit_8" class="bits">7</th>
-        <th style="width:6.25%;" id="bit_9" class="bits">6</th>
-        <th style="width:6.25%;" id="bit_10" class="bits">5</th>
-        <th style="width:6.25%;" id="bit_11" class="bits">4</th>
-        <th style="width:6.25%;" id="bit_12" class="bits">3</th>
-        <th style="width:6.25%;" id="bit_13" class="bits">2</th>
-        <th style="width:6.25%;" id="bit_14" class="bits">1</th>
-        <th style="width:6.25%;" id="bit_15" class="bits">0</th>
+        <th style="width:6.25%;" id="bit_0" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_0">15</th>
+        <th style="width:6.25%;" id="bit_1" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_1">14</th>
+        <th style="width:6.25%;" id="bit_2" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_2">13</th>
+        <th style="width:6.25%;" id="bit_3" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_3">12</th>
+        <th style="width:6.25%;" id="bit_4" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_4">11</th>
+        <th style="width:6.25%;" id="bit_5" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_5">10</th>
+        <th style="width:6.25%;" id="bit_6" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_6">9</th>
+        <th style="width:6.25%;" id="bit_7" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_7">8</th>
+        <th style="width:6.25%;" id="bit_8" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_8">7</th>
+        <th style="width:6.25%;" id="bit_9" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_9">6</th>
+        <th style="width:6.25%;" id="bit_10" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_10">5</th>
+        <th style="width:6.25%;" id="bit_11" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_11">4</th>
+        <th style="width:6.25%;" id="bit_12" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_12">3</th>
+        <th style="width:6.25%;" id="bit_13" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_13">2</th>
+        <th style="width:6.25%;" id="bit_14" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_14">1</th>
+        <th style="width:6.25%;" id="bit_15" class="HIGHLIGHTING HIGHLIGHTING_field_bits HIGHLIGHTING_bit_15">0</th>
       </tr>
       <tr>
-        <td class="moveq">0</td>
-        <td class="moveq">1</td>
-        <td class="moveq">1</td>
-        <td class="moveq">1</td>
-        <td colspan="3" class="register" style="text-align:center">REGISTER</td>
-        <td class="moveq">0</td>
-        <td colspan="8" class="data" style="text-align:center">DATA</td>
+        <td class="HIGHLIGHTING HIGHLIGHTING_field_moveq">0</td>
+        <td class="HIGHLIGHTING HIGHLIGHTING_field_moveq">1</td>
+        <td class="HIGHLIGHTING HIGHLIGHTING_field_moveq">1</td>
+        <td class="HIGHLIGHTING HIGHLIGHTING_field_moveq">1</td>
+        <td colspan="3" class="HIGHLIGHTING HIGHLIGHTING_field_register" style="text-align:center">REGISTER</td>
+        <td class="HIGHLIGHTING HIGHLIGHTING_field_moveq">0</td>
+        <td colspan="8" class="HIGHLIGHTING HIGHLIGHTING_field_data" style="text-align:center">DATA</td>
       </tr>
     </table>
     <div style="margin-left: 40px" id="register_manual" class="register">
     </div>
     <h2>Instruction Fields</h2>
-    <p class="register">Register field — Specifies the data register to be loaded.</p>
-    <p class="data">Data field — Eight bits of data, which are sign-extended to a long operand.</p>
+    <p class="HIGHLIGHTING HIGHLIGHTING_field_register">Register field — Specifies the data register to be loaded.</p>
+    <p class="HIGHLIGHTING HIGHLIGHTING_field_data">Data field — Eight bits of data, which are sign-extended to a long operand.</p>
     <hr>
   </body>
+  <script src="dynamic_manual.js"></script>
   <script>
-    function clear_highlighting() {
-      const classes = ["bits", "moveq", "register", "data"]
-      classes.forEach(function (purpose) {
-        const elements = Array.from(document.getElementsByClassName(purpose));
-        elements.forEach(function (element) {
-          element.style.backgroundColor = null;
-        });
-      });
-    }
-    function load_register_manual(manual) {
-      manual_dom = (new DOMParser()).parseFromString(manual, "text/html");
+    current_field = ""
+    async function amend_page(field_value, bit_no, field_name) {
+      if(field_name == current_field){
+        return
+      }
       document.getElementById("register_manual").innerHTML = '';
-      document.getElementById("register_manual").appendChild(manual_dom.getElementById("as_embedded"))
+      current_field = field_name
+      if (field_name != "register"){
+        return
+      }
+      const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+        manual_dom = (new DOMParser()).parseFromString(this.responseText, "text/html");
+        document.getElementById("register_manual").appendChild(manual_dom.getElementById("section_2_data_registers"))
+      }
+      xhttp.open("GET", "Sec. 1, 1.1.1 Data Registers (D7 – D0).html");
+      xhttp.send();
+      while(!document.getElementById("section_2_data_registers")){
+        await new Promise(r => setTimeout(r, 200));
+      }
     }
-    function highlight_bit(field_value, bit_no, field_name) {
-      clear_highlighting(); 
-      bit_id = "bit_" + bit_no.toString();
-      document.getElementById(bit_id).style.backgroundColor = "orange";
-      const elements = Array.from(document.getElementsByClassName(field_name));
-      elements.forEach(function (element) {
-        element.style.backgroundColor = "yellow";
-      });
-    }
-    </script>
+  </script>
 </html>
