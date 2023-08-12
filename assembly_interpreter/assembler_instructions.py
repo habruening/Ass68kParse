@@ -5,8 +5,6 @@ def get_field_value(decoded_instruction, field_name):
 
 def identify_field_of_bit_no(decoded_instruction, bit_no):
   for key, value in decoded_instruction.items():
-    if key == "name":
-      continue
     if bit_no < len(value["mask"]) and value["mask"][bit_no]:
       return key
 
@@ -23,7 +21,7 @@ move_instruction =  ("MOVE",  {"move"                 : ("0b11", "0b00"),
 
 def decode_instruction_from_format(opcode, instruction_format):
   decoding = aih.make_undecoded_opcode_from_hex_string(opcode)
-  result = {"name" : instruction_format[0]}
+  result = {}
   for field, rule in instruction_format[1].items():
     if isinstance(rule, tuple):
       decoding = aih.decode_from_opcode(decoding, rule[0], rule[1])
@@ -32,7 +30,9 @@ def decode_instruction_from_format(opcode, instruction_format):
     else:
       decoding = aih.decode_and_get_from_opcode(decoding, rule)
     result[field] = decoding   
-  return result
+  return {"name" : instruction_format[0],
+          "value_of_field" : lambda field_name : get_field_value(result, field_name),
+          "to_which_field_belongs_bit" : lambda bit_no : identify_field_of_bit_no(result, bit_no)}
   
 def decode_instruction(opcode):
   if (instruction := decode_instruction_from_format(opcode, move_instruction)):

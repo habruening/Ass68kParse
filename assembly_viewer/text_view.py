@@ -81,8 +81,8 @@ def update_html(instruction, new_instruction):
     opcode = assembly_interpreter.hex_decoder.make_bits_from_hex_string(str(instruction.opcode))
     instruction = assembly_interpreter.assembler_instructions.decode_instruction(str(instruction.opcode))
     if instruction:
-      field_name = assembly_interpreter.assembler_instructions.identify_field_of_bit_no(instruction, bit_to_highlight)
-      field_value = assembly_interpreter.assembler_instructions.get_field_value(instruction, field_name)
+      field_name = instruction["to_which_field_belongs_bit"](bit_to_highlight)
+      field_value = instruction["value_of_field"](field_name)
       help_viewer.assembly_html_help.show_instruction(view, instruction["name"], bit_to_highlight, field_name, field_value, new_instruction)
     decoding_box = help_viewer.assembly_decoding_help.show_instruction(opcode, bit_to_highlight)
   else:
