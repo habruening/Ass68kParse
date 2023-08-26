@@ -1,7 +1,7 @@
 import assembly_interpreter.hex_decoder as aih
 
-def get_field_value(decoded_instruction, field_name):
-  return decoded_instruction[field_name]["extracted_bits"]
+class EmptyClass:
+  pass
 
 def identify_field_of_bit_no(decoded_instruction, bit_no):
   for key, value in decoded_instruction.items():
@@ -27,13 +27,16 @@ def decode_instruction_from_format(opcode, instruction_format):
       decoding = aih.decode_from_opcode(decoding, rule[0], rule[1])
       if not(decoding):
         return False
+      # We also need this in the result. Otherwise identify_field_of_bit_no does not work.
     else:
       decoding = aih.decode_and_get_from_opcode(decoding, rule)
-    result[field] = decoding   
-  return {"name" : instruction_format[0],
-          "value_of_field" : lambda field_name : get_field_value(result, field_name),
-          "to_which_field_belongs_bit" : lambda bit_no : identify_field_of_bit_no(result, bit_no)}
-  
+    result[field] = decoding
+  to_return = EmptyClass()
+  to_return.name = instruction_format[0]
+  to_return.fields = {field_name : result[field_name]["extracted_bits"] for field_name in result.keys() }
+  to_return.get_field_of_bit = lambda bit_no : identify_field_of_bit_no(result, bit_no)
+  return to_return
+
 def decode_instruction(opcode):
   if (instruction := decode_instruction_from_format(opcode, move_instruction)):
     return instruction

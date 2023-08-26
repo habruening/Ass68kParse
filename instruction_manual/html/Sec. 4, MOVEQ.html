@@ -75,13 +75,15 @@
     </div>
     <h2>Instruction Fields</h2>
     <p class="HIGHLIGHTING HIGHLIGHTING_field_register">Register field — Specifies the data register to be loaded.</p>
+    <div style="margin-left: 42px"><p style="color: blue">->D<span class="FIELD_register_dec"></span></p></div>
     <p class="HIGHLIGHTING HIGHLIGHTING_field_data">Data field — Eight bits of data, which are sign-extended to a long operand.</p>
+    <div style="margin-left: 42px"><p style="color: blue">-> <span class="FIELD_data_dec"></span></p></div>
     <hr>
   </body>
   <script src="dynamic_manual.js"></script>
   <script>
     current_field = ""
-    async function amend_page(field_value, bit_no, field_name) {
+    async function amend_page(instruction_name, bit_no, instruction_fields, field_name) {
       if(field_name == current_field){
         return
       }

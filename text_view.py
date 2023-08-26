@@ -56,17 +56,17 @@ for label in (l for l in assembler_code if type(l) == assembly_code_68k.Label):
 listing_file_viewer = assembly_viewer.listing_file_viewer.ListingFileViewer(file, all_lines)
     
 
-import help_viewer.assembly_html_help
-import help_viewer.assembly_decoding_help
-view = help_viewer.assembly_html_help.make_view()
+import instruction_view.assembly_html_help
+import instruction_view.assembly_decoding_help
+view = instruction_view.assembly_html_help.make_view()
 
 
 box.pack_start(listing_file_viewer.widget(), True, True, 0)
 box.set_homogeneous(True)
 help_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-help_box.pack_end(view, True, True, 0)
+help_box.pack_end(view.view, True, True, 0)
 
-decoding_box = help_viewer.assembly_decoding_help.make_decoding_help()
+decoding_box = instruction_view.assembly_decoding_help.make_decoding_help()
 help_box.pack_start(decoding_box, False, True, 10)
 
 box.pack_start(help_box, True, True, 0)
@@ -81,13 +81,11 @@ def update_html(instruction, new_instruction):
     opcode = assembly_interpreter.hex_decoder.make_bits_from_hex_string(str(instruction.opcode))
     instruction = assembly_interpreter.assembler_instructions.decode_instruction(str(instruction.opcode))
     if instruction:
-      field_name = instruction["to_which_field_belongs_bit"](bit_to_highlight)
-      field_value = instruction["value_of_field"](field_name)
-      help_viewer.assembly_html_help.show_instruction(view, instruction["name"], bit_to_highlight, field_name, field_value, new_instruction)
-    decoding_box = help_viewer.assembly_decoding_help.show_instruction(opcode, bit_to_highlight)
+      view.show_instruction(instruction, bit_to_highlight, new_instruction)
+    decoding_box = instruction_view.assembly_decoding_help.show_instruction(opcode, bit_to_highlight)
   else:
-    decoding_box = help_viewer.assembly_decoding_help.show_no_instruction()
-    help_viewer.assembly_html_help.show_text(view, "")
+    decoding_box = instruction_view.assembly_decoding_help.show_no_instruction()
+    view.show_text("")
     bit_to_highlight = -1
 
   help_box.pack_start(decoding_box, False, True, 10)

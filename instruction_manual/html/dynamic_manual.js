@@ -4,12 +4,13 @@ function clear_highlighting() {
     element.style.backgroundColor = null;
   });
 }
-async function amend_page(field_value, bit_no, field_name) {
+async function amend_page(instruction_name, bit_no, instruction_fields, field_name) {
 }
-async function highlight_bit(instruction, field_value, bit_no, field_name) {
+async function highlight_bit(instruction_name, bit_no, instruction_fields, field_name) {
   clear_highlighting();
-  await amend_page(field_value, bit_no, field_name)
-  const elements_i = Array.from(document.getElementsByClassName("HIGHLIGHTING_instruction_" + instruction.toString()));
+  field_value = instruction_fields[field_name]
+  await amend_page(instruction_name, bit_no, instruction_fields, field_name)
+  const elements_i = Array.from(document.getElementsByClassName("HIGHLIGHTING_instruction_" + instruction_name));
   elements_i.forEach(function (element) {
     element.style.backgroundColor = "yellow";
   });
@@ -25,4 +26,15 @@ async function highlight_bit(instruction, field_value, bit_no, field_name) {
   elements_v.forEach(function (element) {
     element.style.backgroundColor = "yellow";
   });
+  for (const field in instruction_fields) {
+    const elements_f = Array.from(document.getElementsByClassName("FIELD_" + field + "_dec"));
+    elements_f.forEach(function (element) {
+      element.innerHTML = parseInt(instruction_fields[field], 2)
+    });
+    const elements_m = Array.from(document.getElementsByClassName("MARKING_field_value_" + field + "_" + instruction_fields[field]));
+    elements_m.forEach(function (element) {
+      element.style.color = "blue";
+    });
+    
+  }
 }
