@@ -5,7 +5,7 @@ from gi.repository import WebKit2, Gtk, GLib
 
 from threading import Timer
 
-def make_view():  
+def make_view(give_widget_away):  
   view = WebKit2.WebView()
   settings = view.get_settings()
   settings.set_enable_javascript(True)
@@ -17,7 +17,7 @@ def make_view():
   to_return = EmptyClass()
   to_return.show_instruction = lambda instruction, bit_to_highlight, new_instruction : show_instruction(view, instruction, bit_to_highlight, new_instruction)
   to_return.show_text = lambda text : show_text(view, text)
-  to_return.view = view
+  give_widget_away(view)
   return to_return
 
 def js_call(instruction, args):
