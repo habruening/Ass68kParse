@@ -28,7 +28,7 @@ import instruction_view.assembly_html_help
 
 
 user_interface.ui.start_gui()
-listing_file_viewer = assembly_viewer.listing_file_viewer.ListingFileViewer(file, all_lines, user_interface.ui.take_main_widget)
+file_in_view = assembly_viewer.listing_file_viewer.create_listing_file_viewer(file, all_lines, user_interface.ui.take_main_widget)
 
 help_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
 
@@ -65,9 +65,9 @@ def on_key_press_event(window, event):
   keyname = Gdk.keyval_name(event.keyval)
   new_instruction = True
   if keyname == "Down":
-    listing_file_viewer.selection.set_selection_to_line_after()
+    file_in_view.set_selection_to_line_after()
   elif keyname == "Up":
-    listing_file_viewer.selection.set_selection_to_line_before()
+    file_in_view.set_selection_to_line_before()
   elif keyname == "Left":
     bit_to_highlight -= 1
     new_instruction = False
@@ -76,10 +76,10 @@ def on_key_press_event(window, event):
     new_instruction = False
   else:
     return
-  listing_file_viewer.selection.select_page()
-  listing_file_viewer.selection.select_line()
-  listing_file_viewer.selection.place_corsur()
-  update_html(listing_file_viewer.selection.selected_line(), new_instruction)
+  file_in_view.select_page()
+  file_in_view.select_line()
+  file_in_view.place_corsur()
+  update_html(file_in_view.current_line(), new_instruction)
   return True
 
 user_interface.ui.gtk_window.connect("key-press-event",on_key_press_event)

@@ -6,15 +6,24 @@ gi.require_version("Gtk", "3.0")
 
 from assembly_viewer import format_as_block
 from listingfile import assembly_code_68k
-
-#def create_listing_viewer(listing_file, all_lines, give_away_widget):
   
+def create_listing_file_viewer(listing_file, all_lines, give_widget_away):
+
+  listing_file_viewer = ListingFileViewer(listing_file, give_widget_away)
+
+  file = FileInView(listing_file_viewer, all_lines)
+
+  listing_file_viewer.text_buffer.connect("notify::cursor-position",
+        lambda a , b : file.set_line_number_to_position(listing_file_viewer.get_cursor_position()))
+
+  return file
 
 class ListingFileViewer():
 
-  def __init__(self, listing_file, all_lines, give_widget_away):
+  def __init__(self, listing_file, give_widget_away):
 
-    self.text = format_as_block.TextAsBlock(listing_file, 132)
+    text = format_as_block.TextAsBlock(listing_file, 132)
+    self.translator = text.translator
   
     scrolledwindow = Gtk.ScrolledWindow()
     give_widget_away(scrolledwindow)
@@ -22,35 +31,20 @@ class ListingFileViewer():
     textview.modify_font(Pango.FontDescription("mono"))
     textview.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0, 0, 0, 0.04))
     self.text_buffer = textview.get_buffer()
-    self.text_buffer.set_text(self.text.text)
+    self.text_buffer.set_text(text.text)
     scrolledwindow.add(textview)
 
     self.tags = {"line" : self.text_buffer.create_tag("yellow_bg", background="yellow"),
                  "ass_line" : self.text_buffer.create_tag("orange_bg", background="orange") ,
                  "branch_line" : self.text_buffer.create_tag("green_bg", foreground="red", background="white") ,
                  "page" : self.text_buffer.create_tag("white_bg", background="white") }
-    
-    self.selection = ContentSelector(self, all_lines)
 
-    def cursor_moved():
-      cursor_position = self.text.translator.target_to_source(self.text_buffer.props.cursor_position)
-      def find_subline():
-        selected_line = 0
-        while(True):
-          for sl in all_lines[selected_line].lines:
-            if cursor_position < sl.raw.from_to[1]:
-              return selected_line
-          selected_line = selected_line + 1
-      self.selection.line_number = find_subline()
-      self.selection.select_page()
-      self.selection.select_line()
-
-    self.text_buffer.connect("notify::cursor-position",lambda a , b : cursor_moved())
-
+  def get_cursor_position(self):
+    return self.translator.target_to_source(self.text_buffer.props.cursor_position)
 
   def get_selection(self, lines):
-    on_screen = [(self.text.translator.source_to_target(snip[0]),
-                   self.text.translator.source_to_target(snip[1])) for snip in lines]
+    on_screen = [(self.translator.source_to_target(snip[0]),
+                   self.translator.source_to_target(snip[1])) for snip in lines]
     return [(self.text_buffer.get_iter_at_offset(snip[0]),
              self.text_buffer.get_iter_at_offset(snip[1])) for snip in on_screen]
              
@@ -66,10 +60,14 @@ class ListingFileViewer():
     for snip in selection:
       self.text_buffer.remove_tag(self.tags[tag], snip[0], snip[1])
 
+  def place_cursor_at_begin_of(self, selection):
+    self.text_buffer.place_cursor(selection[0][0])
+
+
 def raw_of(text_elements):
   return [(snip.raw.from_to[0], snip.raw.from_to[1]) for snip in text_elements]
 
-class ContentSelector:
+class FileInView:
   def __init__(self, listing_file_viewer, all_lines):
     self.line_number = 0
     self.line_selections = []
@@ -77,7 +75,7 @@ class ContentSelector:
     self.listing_file_viewer = listing_file_viewer
     self.all_lines = all_lines
 
-  def selected_line(self):
+  def current_line(self):
     return self.all_lines[self.line_number]
 
   def select_line(self):
@@ -126,4 +124,16 @@ class ContentSelector:
     self.listing_file_viewer.apply_tag("page", self.page_selection)
 
   def place_corsur(self):
-    self.listing_file_viewer.text_buffer.place_cursor(self.line_selections[0][0])
+    self.listing_file_viewer.place_cursor_at_begin_of(self.line_selections)
+
+  def set_line_number_to_position(self, position):
+    def find_subline():
+      selected_line = 0
+      while(True):
+        for sl in self.all_lines[selected_line].lines:
+          if position < sl.raw.from_to[1]:
+            return selected_line
+        selected_line = selected_line + 1
+    self.line_number = find_subline()
+    self.select_page()
+    self.select_line()
