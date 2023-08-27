@@ -29,18 +29,22 @@ import instruction_view.assembly_html_help
 user_interface.ui.start_gui()
 file_in_view = assembly_viewer.listing_file_viewer.create_listing_file_viewer(file, all_lines, user_interface.ui.take_widget_as_left_view)
 
-view = 0
+help_functions = None
 
 def add_help():
-  global view
+  global help_functions
   view = instruction_view.assembly_html_help.make_view(user_interface.ui.take_widget_into_right_view)
+  help_functions = lambda instruction, new_instruction : update_help(view, instruction, new_instruction)
   user_interface.ui.take_widget_into_right_view(instruction_view.assembly_decoding_help.make_decoding_help())
  
-help_enabled = False
+def disable_help():
+  global help_functions
+  user_interface.ui.close_right_view()
+  help_functions = None
 
 bit_to_highlight = -1
 
-def update_html(instruction, new_instruction):
+def update_help(view, instruction, new_instruction):
   global bit_to_highlight
   user_interface.ui.close_last_from_right_view()
   
@@ -59,7 +63,7 @@ def update_html(instruction, new_instruction):
 
 def on_key_press_event(window, event):
   global bit_to_highlight
-  global help_enabled
+  global help_functions
   keyname = Gdk.keyval_name(event.keyval)
   new_instruction = True
   if keyname == "Down":
@@ -73,18 +77,17 @@ def on_key_press_event(window, event):
     bit_to_highlight += 1
     new_instruction = False
   elif keyname == "F8":
-    if help_enabled:
-      user_interface.ui.close_right_view()
+    if help_functions:
+      disable_help()
     else:
       add_help()
-    help_enabled = not(help_enabled)
   else:
     return
   file_in_view.mark_current_page()
   file_in_view.mark_current_line()
   file_in_view.place_cursor()
-  if help_enabled:
-    update_html(file_in_view.current_line(), new_instruction)
+  if help_functions:
+    help_functions(file_in_view.current_line(), new_instruction)
   return True
 
 user_interface.ui.gtk_window.connect("key-press-event",on_key_press_event)
