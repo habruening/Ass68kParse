@@ -11,56 +11,47 @@ from listingfile import assembly_code_68k
 class ListingFileViewer():
 
 
-  def __init__(self, listing_file, all_lines):
-    self.scrolledwindow = Gtk.ScrolledWindow()
-    self.scrolledwindow.set_hexpand(True)
-    self.scrolledwindow.set_vexpand(True)
-
-    self.textview = Gtk.TextView()
-    self.textview.modify_font(Pango.FontDescription("mono"))
-    self.textview.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0, 0, 0, 0.04))
+  def __init__(self, listing_file, all_lines, give_widget_away):
 
     self.text = format_as_block.TextAsBlock(listing_file, 132)
-    self.textview.get_buffer().set_text(self.text.text)
+  
+    scrolledwindow = Gtk.ScrolledWindow()
+    give_widget_away(scrolledwindow)
+    textview = Gtk.TextView()
+    textview.modify_font(Pango.FontDescription("mono"))
+    textview.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0, 0, 0, 0.04))
+    self.text_buffer = textview.get_buffer()
+    self.text_buffer.set_text(self.text.text)
+    scrolledwindow.add(textview)
 
 
-    self.scrolledwindow.add(self.textview)
-
-    self.tags = {"line" : self.textview.get_buffer().create_tag("yellow_bg", background="yellow"),
-                 "ass_line" : self.textview.get_buffer().create_tag("orange_bg", background="orange") ,
-                 "branch_line" : self.textview.get_buffer().create_tag("green_bg", foreground="red", background="white") ,
-                 "page" : self.textview.get_buffer().create_tag("white_bg", background="white") }
+    self.tags = {"line" : self.text_buffer.create_tag("yellow_bg", background="yellow"),
+                 "ass_line" : self.text_buffer.create_tag("orange_bg", background="orange") ,
+                 "branch_line" : self.text_buffer.create_tag("green_bg", foreground="red", background="white") ,
+                 "page" : self.text_buffer.create_tag("white_bg", background="white") }
     
     self.selection = ContentSelector(self, all_lines)
 
-    self.textview.get_buffer().connect("notify::cursor-position",lambda a , b : self.selection.cursor_moved())
+    self.text_buffer.connect("notify::cursor-position",lambda a , b : self.selection.cursor_moved())
+    
+  def apply_tag(self, tag, range):
+    for i in self.tags.values():
+      self.text_buffer.remove_tag(i, range[0], range[1])
+    self.text_buffer.apply_tag(self.tags[tag], range[0], range[1])
 
-  def textbuffer(self):
-    return self.textview.get_buffer()
-  
-  def place_corsur(self):
-    self.textbuffer().place_cursor(self.selection.line_selections[0][0])
+  def remove_tag(self, tag, range):
+    self.text_buffer.remove_tag(self.tags[tag], range[0], range[1])
 
   def pointer_to_position(self, position):
-    return self.textbuffer().get_iter_at_offset(position)
-
-  def widget(self):
-    return self.scrolledwindow
+    return self.text_buffer.get_iter_at_offset(position)
   
-  def apply_tag(self, tag, selection):
-    for i in self.tags.values():
-      self.textbuffer().remove_tag(i, selection[0], selection[1])
-    self.textbuffer().apply_tag(self.tags[tag], selection[0], selection[1])
-
-  def remove_tag(self, tag, selection):
-    self.textbuffer().remove_tag(self.tags[tag], selection[0], selection[1])
+  def file_position_to_screen_position(self, file_position):
+    self.text.translator.source_to_target(file_position)
 
   def make_highlighter(self, lines):
     on_display = [tuple(map( lambda from_to : self.text.translator.source_to_target(from_to), content.raw.from_to))
                      for content in lines]
-    [tuple(map( lambda from_to : self.text.translator.source_to_target(from_to), content.raw.from_to))
-                     for content in lines]
-
+                 
     selections = [tuple(map( lambda from_to : self.pointer_to_position(from_to), selection))
                      for selection in on_display]
     return selections
@@ -126,11 +117,11 @@ class ContentSelector:
     selected_page = selected_line.lines[0].page_header + selected_line.lines[0].page_content
     selected_content = (selected_page[0].from_to[0], selected_page[-1].from_to[1])
     selected_text = tuple(map( lambda from_to : self.listing_file_viewer.text.translator.source_to_target(from_to), selected_content))
-    self.page_selection = tuple(map( lambda from_to : self.listing_file_viewer.textbuffer().get_iter_at_offset(from_to), selected_text))
+    self.page_selection = tuple(map( lambda from_to : self.listing_file_viewer.text_buffer.get_iter_at_offset(from_to), selected_text))
     self.listing_file_viewer.apply_tag("page", self.page_selection)
 
   def cursor_moved(self):
-    cursor_position = self.listing_file_viewer.text.translator.target_to_source(self.listing_file_viewer.textbuffer().props.cursor_position)
+    cursor_position = self.listing_file_viewer.text.translator.target_to_source(self.listing_file_viewer.text_buffer.props.cursor_position)
     def find_subline():
       selected_line = 0
       while(True):
@@ -141,3 +132,6 @@ class ContentSelector:
     self.line_number = find_subline()
     self.select_page()
     self.select_line()
+
+  def place_corsur(self):
+    self.listing_file_viewer.text_buffer.place_cursor(self.line_selections[0][0])
