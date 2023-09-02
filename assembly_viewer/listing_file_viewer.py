@@ -1,7 +1,7 @@
 
 import gi
-from gi.repository import Gtk, Pango, Gdk
 gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, Pango, Gdk
 
 
 from assembly_viewer import format_as_block

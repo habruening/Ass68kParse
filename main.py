@@ -7,59 +7,62 @@ parent, root = file.parent, file.parents[1]
 sys.path.append(str(root))
 from listingfile import assembly_code_68k
 
-import assembly_viewer.listing_file_viewer
+import assembly_viewer.listing_file_viewer as listing_view
 import assembly_interpreter.hex_decoder
 import assembly_interpreter.assembler_instructions
 import assembly_program.assembly_file
+import instruction_view.assembly_decoding_help as instruction_bits_view
+import instruction_view.assembly_html_help as instruction_manual_view
+import instruction_editor.assembly_editor as instruction_editor_view
+import user_interface.ui as gui
 
-import gi
-gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, Pango, Gdk
-
-import user_interface.ui
+from gi.repository import Gdk
 
 file_name = "tests/listingfile/TestData/JCOBITCP_JCOBTCC.LIS"
 all_lines = assembly_program.assembly_file.open_assembly_file(file_name)
 file = open(file_name).read().replace("\f"," ")
 
-    
-import instruction_view.assembly_decoding_help
-import instruction_view.assembly_html_help
-
-user_interface.ui.start_gui()
-file_in_view = assembly_viewer.listing_file_viewer.create_listing_file_viewer(file, all_lines, user_interface.ui.take_widget_as_left_view)
+gui.start_gui()
+file_in_view = listing_view.create_listing_file_viewer(file, all_lines, gui.take_widget_as_left_view)
+gui.take_widget_as_left_view(instruction_editor_view.make_editor())
+gui.take_widget_as_left_view(instruction_editor_view.make_editor())
 
 help_functions = None
 
 def add_help():
   global help_functions
-  view = instruction_view.assembly_html_help.make_view(user_interface.ui.take_widget_into_right_view)
-  help_functions = lambda instruction, new_instruction : update_help(view, instruction, new_instruction)
-  user_interface.ui.take_widget_into_right_view(instruction_view.assembly_decoding_help.make_decoding_help())
- 
+  instruction_manual = instruction_manual_view.make_view(gui.take_widget_into_right_view)
+  help_functions = lambda instruction, new_instruction : update_help(instruction_manual, instruction, new_instruction)
+  gui.take_widget_into_right_view(instruction_bits_view.make_decoding_help())
+  
 def disable_help():
   global help_functions
-  user_interface.ui.close_right_view()
+  gui.close_right_view()
   help_functions = None
 
 bit_to_highlight = -1
 
-def update_help(view, instruction, new_instruction):
+def update_help(instruction_manual, instruction, new_instruction):
   global bit_to_highlight
-  user_interface.ui.close_last_from_right_view()
+  gui.close_last_from_right_view()
   
   if type(instruction) == assembly_code_68k.Instruction:
     opcode = assembly_interpreter.hex_decoder.make_bits_from_hex_string(str(instruction.opcode))
     instruction = assembly_interpreter.assembler_instructions.decode_instruction(str(instruction.opcode))
     if instruction:
-      view.show_instruction(instruction, bit_to_highlight, new_instruction)
-    user_interface.ui.take_widget_into_right_view(instruction_view.assembly_decoding_help.show_instruction(opcode, bit_to_highlight))
+      instruction_manual.show_instruction(instruction, bit_to_highlight, new_instruction)
+    gui.take_widget_into_right_view(instruction_bits_view.show_instruction(opcode, bit_to_highlight))
   else:
-    user_interface.ui.take_widget_into_right_view(instruction_view.assembly_decoding_help.show_no_instruction())
-    view.show_text("")
+    gui.take_widget_into_right_view(instruction_bits_view.show_no_instruction())
+    instruction_manual.show_text("")
     bit_to_highlight = -1
 
-  user_interface.ui.right_container.show_all()
+  gui.right_container.show_all()
+
+def create_instruction_editor():
+  gui.take_widget_as_left_view(instruction_editor_view.make_editor())
+  gui.take_widget_as_left_view(instruction_editor_view.make_editor())
+  gui.show_all()
 
 def on_key_press_event(window, event):
   global bit_to_highlight
@@ -76,6 +79,8 @@ def on_key_press_event(window, event):
   elif keyname == "Right":
     bit_to_highlight += 1
     new_instruction = False
+  elif keyname == "F6":
+    create_instruction_editor()
   elif keyname == "F8":
     if help_functions:
       disable_help()
@@ -90,7 +95,5 @@ def on_key_press_event(window, event):
     help_functions(file_in_view.current_line(), new_instruction)
   return True
 
-user_interface.ui.gtk_window.connect("key-press-event",on_key_press_event)
-user_interface.ui.gtk_window.connect("destroy", Gtk.main_quit)
-user_interface.ui.gtk_window.show_all()
-Gtk.main()
+gui.set_key_press_event(on_key_press_event)
+gui.run_gui_as_main_loop()
