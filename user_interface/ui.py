@@ -6,7 +6,7 @@ gtk_window = 0
 layout = 0
 
 right_container = 0
-right_widgets = []
+right_widgets = {}
 left_view_widgets = []
 
 def show_all():
@@ -32,17 +32,19 @@ def take_widget_as_left_view(widget):
   widget.set_hexpand(True)
   widget.set_vexpand(True)
 
-def take_widget_into_right_view(widget):
-  global right_container
-  global layout
-  if not(right_container):
-    right_container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-    layout.pack_start(right_container, True, True, 0)
-    right_container.pack_start(widget, True, True, 0)
-  else:
-    right_container.pack_start(widget, False, True, 10)
-  right_widgets.append(widget)
-  right_container.show_all()
+def take_widget_into_right_view(name):
+  def do_take_widget_into_right_view(widget):
+    global right_container
+    global layout
+    if not(right_container):
+      right_container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+      layout.pack_start(right_container, True, True, 0)
+      right_container.pack_start(widget, True, True, 0)
+    else:
+      right_container.pack_start(widget, False, True, 10)
+    right_widgets[name] = widget
+    right_container.show_all()
+  return do_take_widget_into_right_view
 
 def close_right_view():
   global right_container
@@ -50,13 +52,12 @@ def close_right_view():
   if right_container:
     right_container.destroy()
     right_container = 0
-    right_widgets = []
+    right_widgets = {}
   
-def close_last_from_right_view():
+def close_from_right_view(name):
   global right_widgets
-  right_widgets[-1].destroy()
-  right_widgets = right_widgets[:-1]
-
+  right_widgets.pop(name).destroy()
+ 
 def set_key_press_event(key_press_event):
   gtk_window.connect("key-press-event",key_press_event)
   

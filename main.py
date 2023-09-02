@@ -31,9 +31,9 @@ help_functions = None
 
 def add_help():
   global help_functions
-  instruction_manual = instruction_manual_view.make_view(gui.take_widget_into_right_view)
+  instruction_manual = instruction_manual_view.make_view(gui.take_widget_into_right_view("html_help"))
   help_functions = lambda instruction, new_instruction : update_help(instruction_manual, instruction, new_instruction)
-  gui.take_widget_into_right_view(instruction_bits_view.make_decoding_help())
+  gui.take_widget_into_right_view("instruction_bits")(instruction_bits_view.make_decoding_help())
   
 def disable_help():
   global help_functions
@@ -44,16 +44,16 @@ bit_to_highlight = -1
 
 def update_help(instruction_manual, instruction, new_instruction):
   global bit_to_highlight
-  gui.close_last_from_right_view()
+  gui.close_from_right_view("instruction_bits")
   
   if type(instruction) == assembly_code_68k.Instruction:
     opcode = assembly_interpreter.hex_decoder.make_bits_from_hex_string(str(instruction.opcode))
     instruction = assembly_interpreter.assembler_instructions.decode_instruction(str(instruction.opcode))
     if instruction:
       instruction_manual.show_instruction(instruction, bit_to_highlight, new_instruction)
-    gui.take_widget_into_right_view(instruction_bits_view.show_instruction(opcode, bit_to_highlight))
+    gui.take_widget_into_right_view("instruction_bits")(instruction_bits_view.show_instruction(opcode, bit_to_highlight))
   else:
-    gui.take_widget_into_right_view(instruction_bits_view.show_no_instruction())
+    gui.take_widget_into_right_view("instruction_bits")(instruction_bits_view.show_no_instruction())
     instruction_manual.show_text("")
     bit_to_highlight = -1
 
