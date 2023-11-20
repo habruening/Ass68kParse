@@ -24,8 +24,8 @@ file = open(file_name).read().replace("\f"," ")
 
 gui.start_gui()
 file_in_view = listing_view.create_listing_file_viewer(file, all_lines, gui.take_widget_as_left_view)
-gui.take_widget_as_left_view(instruction_editor_view.make_editor())
-gui.take_widget_as_left_view(instruction_editor_view.make_editor())
+#gui.take_widget_as_left_view(instruction_editor_view.make_editor())
+#gui.take_widget_as_left_view(instruction_editor_view.make_editor())
 
 help_functions = None
 
